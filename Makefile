@@ -6,7 +6,7 @@
 #    By: dangonz3 <dangonz3@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/11/12 16:11:59 by dangonz3          #+#    #+#              #
-#    Updated: 2025/06/12 18:22:10 by dangonz3         ###   ########.fr        #
+#    Updated: 2025/06/13 18:46:18 by dangonz3         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -15,9 +15,9 @@ COLOR_RESET = \033[0m
 
 SRC_DIR = srcs
 DOCKER_COMPOSE_FILE = $(SRC_DIR)/docker_compose.yml
-VOLUME_DIR = ./volumes
-DATABASE_DIR = $(VOLUME_DIR)/database
-WEBFILE_DIR = $(VOLUME_DIR)/webfiles
+VOLUME_DIR = ./home/dangonz3/data
+DATABASE_DIR = $(VOLUME_DIR)/db_data
+WEBFILE_DIR = $(VOLUME_DIR)/wp_data
 
 all: $(VOLUME_DIR) $(DATABASE_DIR) $(WEBFILE_DIR)
 	docker-compose -f $(DOCKER_COMPOSE_FILE) config
