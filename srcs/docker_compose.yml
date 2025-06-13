@@ -33,18 +33,25 @@
 
 services:
   mariadb:
-    build: ./requirements/mariadb #build: e image: son mutuamente excluyentes. Un servicio en docker-compose.yml usa una de las dos, no ambas. Image: se descarga la imagen de dockerHUB, build: la crea usando "docker build" a partir de un dockerfile
-    container_name: mariadb_service # Asigna un nombre fijo al contenedor de la base de datos.
-    command: '--default-authentication-plugin=mysql_native_password' # Parámetro para asegurar la compatibilidad de autenticación con WordPress.
+    build: ./requirements/mariadb 
+    # build: e image: son mutuamente excluyentes. Un servicio en docker-compose.yml usa una de las dos, no ambas. Image: se descarga la imagen de dockerHUB, build: la crea usando "docker build" a partir de un dockerfile
+    container_name: mariadb_service 
+    # Asigna un nombre fijo al contenedor de la base de datos.
+    command: '--default-authentication-plugin=mysql_native_password' 
+    # Parámetro para asegurar la compatibilidad de autenticación con WordPress.
     volumes:
-      - ./home/dangonz3/data/db_data:/var/lib/mysql # Monta un volumen llamado db_data en el directorio de datos de MariaDB para que los datos persistan aunque se elimine el contenedor. El volumen se crea a partir de un directorio preexistente en la maquina host. Makefile se asegurara de que el directorioe exista
-    restart: always # Reinicia el contenedor automáticamente si se detiene.
-    env_file: .secrets/mariaDB.env # Carga las credenciales de la base de datos desde el fichero .env.
+      - ./home/dangonz3/data/db_data:/var/lib/mysql 
+    # Monta un volumen llamado db_data en el directorio de datos de MariaDB para que los datos persistan aunque se elimine el contenedor. El volumen se crea a partir de un directorio preexistente en la maquina host. Makefile se asegurara de que el directorioe exista
+    restart: always 
+    # Reinicia el contenedor automáticamente si se detiene.
+    env_file: .secrets/mariaDB.env 
+    # Carga las credenciales de la base de datos desde el fichero .env.
     networks:
-      - super_network # Conecta el servicio a la red super_network.
+      - super_network 
+    # Conecta el servicio a la red super_network.
 
   wordpress:
-    image: wordpress:fpm-alpine 
+    build: ./requirements/wordpress
     # Usa la imagen oficial de WordPress que incluye PHP-FPM (FastCGI Process Manager) en su versión ligera alpine. Esta imagen no incluye un servidor web.
     container_name: wordpress_service 
     # Asigna un nombre fijo al contenedor de WordPress.
@@ -73,8 +80,8 @@ services:
       - super_network 
       # Conecta el servicio a la red app-network.
 
-  nginx: # Sus funciones son recibir peticiones web, servir ficheros estáticos (imágenes, CSS) y pasar las peticiones de ficheros PHP al servicio de WordPress. No interactúa con la base de datos. 
-    image: nginx:stable-alpine 
+  nginx:
+    build: ./requirements/nginx
     # Usa la imagen oficial del servidor web Nginx en su versión ligera alpine.
     container_name: nginx_service 
     # Asigna un nombre fijo al contenedor de Nginx.
