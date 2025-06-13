@@ -21,7 +21,9 @@ WEBFILE_DIR = $(VOLUME_DIR)/wp_data
 
 all: $(VOLUME_DIR) $(DATABASE_DIR) $(WEBFILE_DIR)
 	docker-compose -f $(DOCKER_COMPOSE_FILE) config
+# config: Es un subcomando de docker-compose. Valida y muestra la configuración final de la aplicación sin iniciarla. Se usa para verificar que el archivo de configuración no tiene errores de sintaxis.
 	docker-compose -f $(DOCKER_COMPOSE_FILE) up --build
+# --build: Es una opción para el comando up. Fuerza la reconstrucción de las imágenes Docker de los servicios antes de levantar los contenedores. Esto asegura que cualquier cambio en los Dockerfiles o en el código fuente se aplique.
 	@echo "$(COLOR_GREEN)------------ MESSAGE: DOCKER CONTAINERS UP ------------ $(COLOR_RESET)"	
 	docker ps
 	docker volume ls
@@ -42,6 +44,7 @@ clean:
 	
 fclean: clean
 	docker system prune --all --volumes --force
+# docker system prune: Es el comando base para eliminar datos no utilizados de Docker, como contenedores detenidos, redes sin uso y cachés de construcción. --all (o -a): Extiende la acción de prune para que no solo elimine los recursos "colgantes" (dangling), sino todos los recursos que no estén siendo utilizados por al menos un contenedor. Esto incluye la eliminación de todas las imágenes que no estén asociadas a un contenedor existente, incluso si no están "colgantes". --volumes: Incluye en la limpieza todos los volúmenes no utilizados. Por defecto, docker system prune no elimina volúmenes para prevenir la pérdida accidental de datos. Esta bandera anula esa protección y elimina cualquier volumen que no esté conectado a un contenedor en ejecución o detenido. --force (o -f): Ejecuta el comando sin solicitar confirmación. Normalmente, Docker le pediría que confirme una acción tan destructiva. Esta bandera omite esa pregunta y procede directamente con la eliminación.
 	rm -fr $(VOLUME_DIR)
 	@echo "$(COLOR_GREEN)------------ MESSAGE: FCLEANING COMPLETED ------------ $(COLOR_RESET)"
 
