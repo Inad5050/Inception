@@ -1,116 +1,146 @@
+#--- Flujo del servidor ---
 # Flujo de Petición Dinámica (Página PHP)
 
 # 1.  Usuario → Nginx
-#     Un navegador envía una petición HTTP al puerto público (ej. `8080`).
+#   Un navegador envía una petición HTTP al puerto público (ej. `8080`).
 
 # 2.  Nginx → WordPress
-#     Nginx determina que la petición es para un recurso dinámico (un fichero `.php`).
-#     Reenvía la petición a través de la red interna al servicio `wordpress` en el puerto `9000` (PHP-FPM).
+#   Nginx determina que la petición es para un recurso dinámico (un fichero `.php`).
+#   Reenvía la petición a través de la red interna al servicio `wordpress` en el puerto `9000` (PHP-FPM).
 
 # 3.  WordPress ↔ MariaDB
-#     El proceso PHP de WordPress se ejecuta.
-#     Para construir la página, realiza consultas SQL al servicio `db` en el puerto `3306`.
-#     MariaDB procesa las consultas y devuelve los datos a WordPress.
+#   El proceso PHP de WordPress se ejecuta.
+#   Para construir la página, realiza consultas SQL al servicio `db` en el puerto `3306`.
+#   MariaDB procesa las consultas y devuelve los datos a WordPress.
 
 # 4.  WordPress → Nginx
-#     Con los datos de la base de datos, WordPress termina de generar la página HTML completa.
-#     Envía el HTML resultante de vuelta a Nginx.
+#   Con los datos de la base de datos, WordPress termina de generar la página HTML completa.
+#   Envía el HTML resultante de vuelta a Nginx.
 
 # 5.  Nginx → Usuario
-#     Nginx recibe el HTML y lo reenvía al navegador del usuario como respuesta final.
+#   Nginx recibe el HTML y lo reenvía al navegador del usuario como respuesta final.
 
 # Flujo de Petición Estática (Imagen, CSS, JS)
 
 # 1.  Usuario → Nginx
-#     El navegador solicita un fichero estático (ej. `style.css` o `logo.png`).
+#   El navegador solicita un fichero estático (ej. `style.css` o `logo.png`).
 
 # 2.  Nginx → Usuario
-#     Nginx localiza el fichero directamente en el volumen montado (`/var/www/html`).
-#     Sirve el fichero directamente al usuario sin contactar a ningún otro servicio.
-
-# En este segundo flujo, los contenedores de `WordPress` y `MariaDB` no realizan ningún trabajo, lo que reduce la carga y aumenta la velocidad.*
-
+#   Nginx localiza el fichero directamente en el volumen montado (`/var/www/html`).
+#   Sirve el fichero directamente al usuario sin contactar a ningún otro servicio.
+#   En este segundo flujo, los contenedores de `WordPress` y `MariaDB` no realizan ningún trabajo, lo que reduce la carga y aumenta la velocidad.*
 
 services:
   mariadb:
-    build: ./requirements/mariadb 
-    # build: e image: son mutuamente excluyentes. Un servicio en docker-compose.yml usa una de las dos, no ambas. Image: se descarga la imagen de dockerHUB, build: la crea usando "docker build" a partir de un dockerfile
-    container_name: mariadb_service 
+    # build: crea la imagen usando "docker build" a partir de un dockerfile. 
+    # Image: se descarga la imagen de dockerHUB. Un servicio en docker-compose.yml usa una de las dos, no ambas.
+    build: ./requirements/mariadb
+
     # Asigna un nombre fijo al contenedor de la base de datos.
-    command: '--default-authentication-plugin=mysql_native_password' 
+    container_name: mariadb_service
+
     # Parámetro para asegurar la compatibilidad de autenticación con WordPress.
+    command: '--default-authentication-plugin=mysql_native_password'
+
+    # Monta un volumen llamado db_data en el directorio de datos de MariaDB para que los datos persistan aunque se elimine el contenedor. 
+    # El volumen se crea a partir de un directorio preexistente en la maquina host (InceptionData). Makefile se asegurara de que el directorioe exista
     volumes:
-      - ./home/dangonz3/data/db_data:/var/lib/mysql 
-    # Monta un volumen llamado db_data en el directorio de datos de MariaDB para que los datos persistan aunque se elimine el contenedor. El volumen se crea a partir de un directorio preexistente en la maquina host. Makefile se asegurara de que el directorioe exista
-    restart: always 
-    # Reinicia el contenedor automáticamente si se detiene.
-    env_file: .secrets/mariaDB.env 
+      - ./home/dangonz3/InceptionData/db_data:/var/lib/mysql
+
+    # Reinicia el contenedor automáticamente si se detiene. Para que vuelva a estar en funcionamiento lo antes posible y sin necesidad de intervención manual.
+    restart: always
+
     # Carga las credenciales de la base de datos desde el fichero .env.
+    # Para mantener mantener la información confidencial (los "secretos") en un archivo separado de la configuración del servicio (.env).
+    env_file: ../secrets/mariaDB.env
+
+    # Conecta el servicio a la red super_network.
     networks:
       - super_network 
-    # Conecta el servicio a la red super_network.
 
   wordpress:
-    build: ./requirements/wordpress
     # Usa la imagen oficial de WordPress que incluye PHP-FPM (FastCGI Process Manager) en su versión ligera alpine. Esta imagen no incluye un servidor web.
-    container_name: wordpress_service 
+    build: ./requirements/wordpress
+    
     # Asigna un nombre fijo al contenedor de WordPress.
+    container_name: wordpress_service 
+    
+    # Indica que este servicio debe iniciarse después del servicio db.    
     depends_on:
       - db 
-    # Indica que este servicio debe iniciarse después del servicio db.
-    volumes:
-      - ./home/dangonz3/data/wp_data:/var/www/html 
+
     # Monta un volumen llamado wp_data para almacenar los ficheros de WordPress (temas, plugins, uploads).
-    restart: always 
+    volumes:
+      - ./home/dangonz3/InceptionData/wp_data:/var/www/html 
+    
     # Reinicia el contenedor automáticamente.
+    restart: always 
+    
+    # El fichero .env debe contener las variables de entorno que los servicios mariadb y wordpress necesitan para configurarse.
+    # MYSQL es el prefijo para el conjunto de variables de entorno que se cargan desde el fichero .env.
     env_file: .secrets/mariaDB.env 
-    # Carga las variables para que el script de inicio pueda usar los valores de MYSQL_*.
-    environment: 
-    # Define variables de entorno específicas para la configuración de WordPress. 
-    # WordPress necesita las credenciales de MariaDB para conectarse a la base de datos que MariaDB ha creado. 
-      - WORDPRESS_DB_HOST=db:3306 
+    
+    # Define variables de entorno específicas para la configuración de WordPress.
+    # WordPress necesita las credenciales de MariaDB para conectarse a la base de datos que MariaDB ha creado.
+    environment:
+
       # Indica a WordPress que el host de la base de datos es el servicio db en el puerto 3306.
-      - WORDPRESS_DB_NAME=${MYSQL_DATABASE} 
+      - WORDPRESS_DB_HOST=db:3306 
+      
       # Crea la variable de entorno WORDPRESS_DB_NAME para el contenedor de WordPress, y le asígna el valor de la variable MYSQL_DATABASE que ha encontrado en el fichero .env
+      - WORDPRESS_DB_NAME=${MYSQL_DATABASE} 
+      
+      # Usan las variables cargadas desde el fichero .env para configurar el usuario, contraseña y nombre de la base de datos.
       - WORDPRESS_DB_USER=${MYSQL_USER} 
+      
       # Usan las variables cargadas desde el fichero .env para configurar el usuario, contraseña y nombre de la base de datos.
       - WORDPRESS_DB_PASSWORD=${MYSQL_PASSWORD} 
-      # Usan las variables cargadas desde el fichero .env para configurar el usuario, contraseña y nombre de la base de datos.
+      
+      # Conecta el servicio a la red app-network.
     networks:
       - super_network 
-      # Conecta el servicio a la red app-network.
 
   nginx:
-    build: ./requirements/nginx
     # Usa la imagen oficial del servidor web Nginx en su versión ligera alpine.
-    container_name: nginx_service 
+    build: ./requirements/nginx
+
     # Asigna un nombre fijo al contenedor de Nginx.
+    container_name: nginx_service 
+
+    # Mapea el puerto 8080 de la máquina host al puerto 80 del contenedor Nginx. Accederás a la web a través de http://localhost:8080.
     ports:
       - "8080:80" 
-      # Mapea el puerto 8080 de la máquina host al puerto 80 del contenedor Nginx. Accederás a la web a través de http://localhost:8080.
-    volumes: 
+
     # Define los volúmenes para Nginx.
-      - ./home/dangonz3/data/wp_data:/var/www/html 
-      # Monta el mismo volumen de ficheros de WordPress para que Nginx pueda servir los ficheros estáticos (imágenes, CSS, JS).
-      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf 
+    volumes:
+
+      # Monta el mismo volumen que WordPress para que Nginx pueda servir los ficheros estáticos (imágenes, CSS, JS).
+      - ./home/dangonz3/InceptionData/wp_data:/var/www/html 
+
       # Monta el fichero de configuración personalizado de Nginx dentro del contenedor.
-    restart: always 
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf 
+
     # Reinicia el contenedor automáticamente.
+    restart: always 
+
+    # Indica que este servicio debe iniciarse después del servicio wordpress.
     depends_on:
       - wordpress 
-      # Indica que este servicio debe iniciarse después del servicio wordpress.
+
+    # Conecta el servicio a la red app-network.
     networks:
       - super_network 
-      # Conecta el servicio a la red app-network.
 
+# Declara los volúmenes nombrados para que Docker los gestione.
 volumes:
   db_data: 
-  # Declara los volúmenes nombrados para que Docker los gestione. Esto desacopla el almacenamiento de datos del ciclo de vida del contenedor.
   wp_data: 
-  # Declara los volúmenes nombrados para que Docker los gestione. Esto desacopla el almacenamiento de datos del ciclo de vida del contenedor.
 
+
+# Declara la red personalizada. Si no declaramos una red Docker crea una red automáticamente.
+# Por que usamos una red personalizada? Porque podemos querer aislar la red a la que cada servicio tiene acceso.
 networks:
-  super_network:  
-  # Declara la red personalizada. Si no declaramos una red Docker crea una red automáticamente. Por que usamos una red personalizada? En este caso porque nos lo pide el subject, en otros casos porque podemos querer aislar la red a la que cada servicio tiene acceso.
-    driver: bridge 
+  super_network:
+
     # Especifica que es una red bridge, el tipo estándar para comunicación entre contenedores en un mismo host.
+    driver: bridge 
