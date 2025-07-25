@@ -1,15 +1,3 @@
-# **************************************************************************** #
-#                                                                              #
-#                                                         :::      ::::::::    #
-#    Makefile                                           :+:      :+:    :+:    #
-#                                                     +:+ +:+         +:+      #
-#    By: dangonz3 <dangonz3@student.42.fr>          +#+  +:+       +#+         #
-#                                                 +#+#+#+#+#+   +#+            #
-#    Created: 2024/11/12 16:11:59 by dangonz3          #+#    #+#              #
-#    Updated: 2025/06/13 18:46:18 by dangonz3         ###   ########.fr        #
-#                                                                              #
-# **************************************************************************** #
-
 COLOR_GREEN = \033[0;32m
 COLOR_RESET = \033[0m
 
@@ -34,10 +22,8 @@ all: $(VOLUME_DIR) $(DATABASE_DIR) $(WEBFILE_DIR)
 
 $(VOLUME_DIR):
 	mkdir -p $(VOLUME_DIR)
-
 $(DATABASE_DIR):
 	mkdir -p $(DATABASE_DIR)
-
 $(WEBFILE_DIR):
 	mkdir -p $(WEBFILE_DIR)
 

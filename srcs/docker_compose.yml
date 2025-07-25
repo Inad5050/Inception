@@ -31,116 +31,97 @@
 #   En este segundo flujo, los contenedores de `WordPress` y `MariaDB` no realizan ningún trabajo, lo que reduce la carga y aumenta la velocidad.*
 
 services:
+  #--- Servicio MariaDB ---
+  # build: Construye la imagen a partir del Dockerfile ubicado en la ruta especificada.
+  # container_name: Asigna un nombre fijo al contenedor para fácil identificación.
+  # volumes: Monta un directorio del host en el contenedor para que los datos de la base de datos persistan.
+  # networks: Conecta el servicio a la red personalizada 'super_network'.
+  # restart: Configura el contenedor para que se reinicie siempre, a menos que se detenga manualmente.
+  # environment: Define variables de entorno. El sufijo '_FILE' indica al contenedor que lea el valor desde el fichero secreto correspondiente.
+  # secrets: Otorga al contenedor acceso a los secretos de Docker definidos a nivel raíz.
   mariadb:
-    # build: crea la imagen usando "docker build" a partir de un dockerfile. 
-    # Image: se descarga la imagen de dockerHUB. Un servicio en docker-compose.yml usa una de las dos, no ambas.
     build: ./requirements/mariadb
-
-    # Asigna un nombre fijo al contenedor de la base de datos.
     container_name: mariadb_service
-
-    # Parámetro para asegurar la compatibilidad de autenticación con WordPress.
-    command: '--default-authentication-plugin=mysql_native_password'
-
-    # Monta un volumen llamado db_data en el directorio de datos de MariaDB para que los datos persistan aunque se elimine el contenedor. 
-    # El volumen se crea a partir de un directorio preexistente en la maquina host (InceptionData). Makefile se asegurara de que el directorioe exista
     volumes:
-      - ./home/dangonz3/InceptionData/db_data:/var/lib/mysql
+      - ${DATA_PATH}/db_data:/var/lib/mysql
+    networks:
+      - super_network
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD_FILE: /run/secrets/db_password
+      MYSQL_ROOT_PASSWORD_FILE: /run/secrets/db_root_password
+    secrets:
+      - db_password
+      - db_root_password
 
-    # Reinicia el contenedor automáticamente si se detiene. Para que vuelva a estar en funcionamiento lo antes posible y sin necesidad de intervención manual.
+  #--- Servicio WordPress ---
+  # build: Construye la imagen a partir del Dockerfile de WordPress.
+  # container_name: Asigna un nombre fijo al contenedor.
+  # depends_on: Asegura que el servicio 'mariadb' se inicie antes que este servicio.
+  # volumes: Monta el directorio de datos de WordPress para que los ficheros (temas, plugins, uploads) persistan.
+  # networks: Conecta el servicio a la red 'super_network'.
+  # restart: Configura el reinicio automático.
+  # environment: Define variables para que WordPress se conecte a la base de datos, usando secretos para la contraseña.
+  # secrets: Otorga acceso al secreto que contiene la contraseña de la base de datos.
+  wordpress:
+    build: ./requirements/wordpress
+    container_name: wordpress_service
+    depends_on:
+      - mariadb
+    volumes:
+      - ${DATA_PATH}/wp_data:/var/www/html
+    networks:
+      - super_network
+    restart: unless-stopped
+    environment:
+      WORDPRESS_DB_HOST: mariadb:3306
+      WORDPRESS_DB_NAME: ${MYSQL_DATABASE}
+      WORDPRESS_DB_USER: ${MYSQL_USER}
+      WORDPRESS_DB_PASSWORD_FILE: /run/secrets/db_password
+    secrets:
+      - db_password
+
+  #--- Servicio Nginx ---
+  # build: Construye la imagen del servidor web Nginx.
+  # container_name: Asigna un nombre fijo al contenedor.
+  # depends_on: Asegura que el servicio 'wordpress' esté disponible antes de iniciar Nginx.
+  # ports: Mapea el puerto 8080 del host al puerto 80 del contenedor, exponiendo el servicio.
+  # volumes: Define los volúmenes para Nginx.
+  # volumes -: Monta el mismo volumen de WordPress para servir ficheros estáticos directamente.
+  # volumes -: Monta el fichero de configuración personalizado de Nginx dentro del contenedor.
+  # networks: Conecta el servicio a la red 'super_network'.
+  # restart: Configura el reinicio automático.
+  nginx:
+    build: ./requirements/nginx
+    container_name: nginx_service
+    depends_on:
+    - wordpress
+    ports:
+    - "8080:80"
+    volumes:
+    - ${DATA_PATH}/wp_data:/var/www/html
+    - ./requirements/nginx/conf/default.conf:/etc/nginx/conf.d/default.conf
+    networks:
+    - super_network
     restart: always
 
-    # Carga las credenciales de la base de datos desde el fichero .env.
-    # Para mantener mantener la información confidencial (los "secretos") en un archivo separado de la configuración del servicio (.env).
-    env_file: ../secrets/mariaDB.env
-
-    # Conecta el servicio a la red super_network.
-    networks:
-      - super_network 
-
-  wordpress:
-    # Usa la imagen oficial de WordPress que incluye PHP-FPM (FastCGI Process Manager) en su versión ligera alpine. Esta imagen no incluye un servidor web.
-    build: ./requirements/wordpress
-    
-    # Asigna un nombre fijo al contenedor de WordPress.
-    container_name: wordpress_service 
-    
-    # Indica que este servicio debe iniciarse después del servicio db.    
-    depends_on:
-      - db 
-
-    # Monta un volumen llamado wp_data para almacenar los ficheros de WordPress (temas, plugins, uploads).
-    volumes:
-      - ./home/dangonz3/InceptionData/wp_data:/var/www/html 
-    
-    # Reinicia el contenedor automáticamente.
-    restart: always 
-    
-    # El fichero .env debe contener las variables de entorno que los servicios mariadb y wordpress necesitan para configurarse.
-    # MYSQL es el prefijo para el conjunto de variables de entorno que se cargan desde el fichero .env.
-    env_file: .secrets/mariaDB.env 
-    
-    # Define variables de entorno específicas para la configuración de WordPress.
-    # WordPress necesita las credenciales de MariaDB para conectarse a la base de datos que MariaDB ha creado.
-    environment:
-
-      # Indica a WordPress que el host de la base de datos es el servicio db en el puerto 3306.
-      - WORDPRESS_DB_HOST=db:3306 
-      
-      # Crea la variable de entorno WORDPRESS_DB_NAME para el contenedor de WordPress, y le asígna el valor de la variable MYSQL_DATABASE que ha encontrado en el fichero .env
-      - WORDPRESS_DB_NAME=${MYSQL_DATABASE} 
-      
-      # Usan las variables cargadas desde el fichero .env para configurar el usuario, contraseña y nombre de la base de datos.
-      - WORDPRESS_DB_USER=${MYSQL_USER} 
-      
-      # Usan las variables cargadas desde el fichero .env para configurar el usuario, contraseña y nombre de la base de datos.
-      - WORDPRESS_DB_PASSWORD=${MYSQL_PASSWORD} 
-      
-      # Conecta el servicio a la red app-network.
-    networks:
-      - super_network 
-
-  nginx:
-    # Usa la imagen oficial del servidor web Nginx en su versión ligera alpine.
-    build: ./requirements/nginx
-
-    # Asigna un nombre fijo al contenedor de Nginx.
-    container_name: nginx_service 
-
-    # Mapea el puerto 8080 de la máquina host al puerto 80 del contenedor Nginx. Accederás a la web a través de http://localhost:8080.
-    ports:
-      - "8080:80" 
-
-    # Define los volúmenes para Nginx.
-    volumes:
-
-      # Monta el mismo volumen que WordPress para que Nginx pueda servir los ficheros estáticos (imágenes, CSS, JS).
-      - ./home/dangonz3/InceptionData/wp_data:/var/www/html 
-
-      # Monta el fichero de configuración personalizado de Nginx dentro del contenedor.
-      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf 
-
-    # Reinicia el contenedor automáticamente.
-    restart: always 
-
-    # Indica que este servicio debe iniciarse después del servicio wordpress.
-    depends_on:
-      - wordpress 
-
-    # Conecta el servicio a la red app-network.
-    networks:
-      - super_network 
-
-# Declara los volúmenes nombrados para que Docker los gestione.
+#--- Configuración Global ---
+# volumes: Declara los volúmenes nombrados para que Docker los gestione y los datos persistan.
+# networks: Declara la red personalizada para permitir la comunicación entre servicios por su nombre.
+# networks - driver: Especifica que se usa el driver 'bridge', estándar para comunicación en un mismo host.
+# secrets: Define los secretos, indicando la ruta en el host del fichero que contiene el valor sensible.
 volumes:
-  db_data: 
-  wp_data: 
+  db_data:
+  wp_data:
 
-
-# Declara la red personalizada. Si no declaramos una red Docker crea una red automáticamente.
-# Por que usamos una red personalizada? Porque podemos querer aislar la red a la que cada servicio tiene acceso.
 networks:
   super_network:
+    driver: bridge
 
-    # Especifica que es una red bridge, el tipo estándar para comunicación entre contenedores en un mismo host.
-    driver: bridge 
+secrets:
+  db_password:
+    file: ./secrets/db_password.txt
+  db_root_password:
+    file: ./secrets/db_root_password.txt
