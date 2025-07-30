@@ -30,3 +30,11 @@
 	Nginx localiza el fichero directamente en el volumen montado (`/var/www/html`).
 	Sirve el fichero directamente al usuario sin contactar a ningún otro servicio.
 	En este segundo flujo, los contenedores de `WordPress` y `MariaDB` no realizan ningún trabajo, lo que reduce la carga y aumenta la velocidad.
+
+
+
+
+
+
+
+# ste es el directorio de MariaDB

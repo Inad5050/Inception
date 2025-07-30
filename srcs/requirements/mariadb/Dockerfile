@@ -31,3 +31,4 @@ CMD ["mysqld"]
 # MY - nombre de la hija del creador
 # SQL - Structured Query Language
 # D - daemon, nombre dado a los procesos que proveen un servicio permanente y autónomo que se ejecuta en segundo plano
+
