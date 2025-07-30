@@ -12,7 +12,6 @@ RUN apt-get update && \
 # Copia el fichero de configuración personalizado de MariaDB.
 COPY ./conf/50-server.cnf /etc/mysql/mariadb.conf.d/50-server.cnf
 
-
 # Expone el puerto estándar de MariaDB.
 EXPOSE 3306
 
