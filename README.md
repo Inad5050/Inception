@@ -1,6 +1,6 @@
-## Flujo del servidor
+# Flujo del servidor
 
-# Flujo de Petición Dinámica (Página PHP)
+## Flujo de Petición Dinámica (Página PHP)
 
 1.	Usuario → Nginx
 	Un navegador envía una petición HTTP al puerto público (ej. `443`)
@@ -21,7 +21,7 @@
 5.	Nginx → Usuario
 	Nginx recibe el HTML y lo reenvía al navegador del usuario como respuesta final.
 
-# Flujo de Petición Estática (Imagen, CSS, JS)
+## Flujo de Petición Estática (Imagen, CSS, JS)
 
 1.	Usuario → Nginx
 	El navegador solicita un fichero estático (ej. `style.css` o `logo.png`).
