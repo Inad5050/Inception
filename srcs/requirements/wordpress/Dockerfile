@@ -1,9 +1,6 @@
 # Utiliza una imagen base con PHP 8.2 y FPM sobre Alpine para un menor tamaño.
 FROM php:8.2-fpm-alpine
 
-# Metadato del mantenedor.
-LABEL maintainer="dangonz3 <dangonz3@student.42urduliz.com>"
-
 # Instala las extensiones de PHP necesarias para WordPress (MySQL, GD, etc.) y herramientas como wget y unzip.
 RUN apk update && apk add --no-cache \
     wget \

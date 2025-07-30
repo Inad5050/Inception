@@ -1,17 +1,11 @@
 # Utiliza la imagen base oficial de Debian Bookworm en su versión "slim" para reducir el tamaño.
 FROM debian:bookworm-slim
 
-# Define el metadato del mantenedor de la imagen.
-LABEL maintainer="dangonz3 <dangonz3@student.42urduliz.com>" 
-
 # Actualiza la lista de paquetes disponibles en los repositorios de Debian.RUN 
 apt-get update \                 
 
 # Instala NGINX, omitiendo paquetes recomendados y sugeridos para una instalación mínima.    
 && apt-get install --no-install-recommends --no-install-suggests -y nginx \ 
-
-# Limpia la caché de APT para reducir el tamaño final de la imagen Docker.
-&& rm -rf /var/lib/apt/lists/* \ 
 
 # Crea un enlace simbólico para redirigir el log de acceso de NGINX a la salida estándar (stdout) del contenedor.
 && ln -sf /dev/stdout /var/log/nginx/access.log \ 

@@ -7,6 +7,7 @@ networks:
     driver: bridge
 
 # secrets: Define los secretos, indicando la ruta en el host del fichero que contiene el valor sensible.
+# son las contraseñas de la base de datos mariaDB, que tambíen se compartiran con WordpPress
 secrets:
   db_password:
     file: ./secrets/db_password.txt
@@ -16,17 +17,25 @@ secrets:
 services:
   #--- Servicio MariaDB ---
   # build: Construye la imagen a partir del Dockerfile ubicado en la ruta especificada.
+  #   usamos un atajo para especificar el contexto de construcción de la imagen y 
+  #   la úbicación del Dockerfile (en el root del directorio especificado) a la vez.
+  #   la forma explicita seria:
+  #     context: ./ruta_al_contexto
+  #     dockerfile: ./ruta_al_Dockerfile       
   # container_name: Asigna un nombre fijo al contenedor.
   # volumes: Monta un directorio del host en el contenedor para que los datos de la base de datos persistan.
-  #		montar: la acción lógica de hacer que un sistema de archivos o un almacenamiento de datos sea accesible en un punto específico, \
+  #		montar: la acción lógica de hacer que un sistema de archivos o un almacenamiento de datos sea accesible en un punto específico,
   #		establecer un enlace directo entre el directorio del host (${DATA_PATH}/db_data) y el directorio del contenedor (/var/lib/mysql).
   # networks: Conecta el servicio a la red personalizada 'inception_network'.
   # restart: Configura el contenedor para que se reinicie siempre, a menos que se detenga manualmente.
+  # secrets: Otorga al contenedor acceso a los secretos de Docker definidos en el nivel raíz de docker-compose.
+  #   Durante la configuración inicial MariaDB necesita permisos root para: crear la base de datos para WordPress, 
+  #   crear el usuario para WordPress, otorgar privilegios a ese usuario.
+  #   Tras la configuración inicial, WordPress ya no necesita el acceso root y utiliza el usuario con privilegios limitados que se acaba de crear
   # environment: Define variables de entorno. 
   #		El sufijo '_FILE' indica al contenedor que lea el valor desde el fichero secreto correspondiente.
   #		MYSQL_PASSWORD_FILE: le dice a la aplicación de WordPress (no a Docker) dónde encontrar los secretos.
   #		run es una ubicación estándar en los sistemas operativos Linux modernos para almacenar datos de tiempo de ejecución. 
-  # secrets: Otorga al contenedor acceso a los secretos de Docker definidos en el nivel raíz de docker-compose.
   mariadb:
     build: ./requirements/mariadb
     container_name: mariadb_service
@@ -52,8 +61,8 @@ services:
   # networks: Conecta el servicio a la red 'inception_network'.
   # restart: Configura el reinicio automático.
   #		unless-stopped: el contenedor se reiniciará si falla, pero no si ha sido detenido manualmente por un usuario.
-  # environment: Define variables para que WordPress se conecte a la base de datos, usando secretos para la contraseña.
   # secrets: Otorga acceso al secreto que contiene la contraseña de la base de datos.
+  # environment: Define variables para que WordPress se conecte a la base de datos, usando secretos para la contraseña.
   wordpress:
     build: ./requirements/wordpress
     container_name: wordpress_service
