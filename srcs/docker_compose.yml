@@ -1,36 +1,57 @@
+# networks: Declara la red personalizada para permitir la comunicación entre servicios por su nombre.
+# driver: Especifica que se usa el driver 'bridge', estándar para comunicación en un mismo host. \
+# Siempre está disponible. Es un componente del demonio de Docker.
+# Si omites la sección networks, Docker Compose crea automáticamente una red de tipo bridge.
+networks:
+  inception_network:
+    driver: bridge
+
+# secrets: Define los secretos, indicando la ruta en el host del fichero que contiene el valor sensible.
+secrets:
+  db_password:
+    file: ./secrets/db_password.txt
+  db_root_password:
+    file: ./secrets/db_root_password.txt
+
 services:
   #--- Servicio MariaDB ---
   # build: Construye la imagen a partir del Dockerfile ubicado en la ruta especificada.
-  # container_name: Asigna un nombre fijo al contenedor para fácil identificación.
+  # container_name: Asigna un nombre fijo al contenedor.
   # volumes: Monta un directorio del host en el contenedor para que los datos de la base de datos persistan.
-  # networks: Conecta el servicio a la red personalizada 'super_network'.
+  #		montar: la acción lógica de hacer que un sistema de archivos o un almacenamiento de datos sea accesible en un punto específico, \
+  #		establecer un enlace directo entre el directorio del host (${DATA_PATH}/db_data) y el directorio del contenedor (/var/lib/mysql).
+  # networks: Conecta el servicio a la red personalizada 'inception_network'.
   # restart: Configura el contenedor para que se reinicie siempre, a menos que se detenga manualmente.
-  # environment: Define variables de entorno. El sufijo '_FILE' indica al contenedor que lea el valor desde el fichero secreto correspondiente.
-  # secrets: Otorga al contenedor acceso a los secretos de Docker definidos a nivel raíz.
+  # environment: Define variables de entorno. 
+  #		El sufijo '_FILE' indica al contenedor que lea el valor desde el fichero secreto correspondiente.
+  #		MYSQL_PASSWORD_FILE: le dice a la aplicación de WordPress (no a Docker) dónde encontrar los secretos.
+  #		run es una ubicación estándar en los sistemas operativos Linux modernos para almacenar datos de tiempo de ejecución. 
+  # secrets: Otorga al contenedor acceso a los secretos de Docker definidos en el nivel raíz de docker-compose.
   mariadb:
     build: ./requirements/mariadb
     container_name: mariadb_service
     volumes:
       - ${DATA_PATH}/db_data:/var/lib/mysql
     networks:
-      - super_network
+      - inception_network
     restart: unless-stopped
+    secrets:
+      - db_password
+      - db_root_password
     environment:
       MYSQL_DATABASE: ${MYSQL_DATABASE}
       MYSQL_USER: ${MYSQL_USER}
       MYSQL_PASSWORD_FILE: /run/secrets/db_password
       MYSQL_ROOT_PASSWORD_FILE: /run/secrets/db_root_password
-    secrets:
-      - db_password
-      - db_root_password
 
   #--- Servicio WordPress ---
   # build: Construye la imagen a partir del Dockerfile de WordPress.
   # container_name: Asigna un nombre fijo al contenedor.
   # depends_on: Asegura que el servicio 'mariadb' se inicie antes que este servicio.
   # volumes: Monta el directorio de datos de WordPress para que los ficheros (temas, plugins, uploads) persistan.
-  # networks: Conecta el servicio a la red 'super_network'.
+  # networks: Conecta el servicio a la red 'inception_network'.
   # restart: Configura el reinicio automático.
+  #		unless-stopped: el contenedor se reiniciará si falla, pero no si ha sido detenido manualmente por un usuario.
   # environment: Define variables para que WordPress se conecte a la base de datos, usando secretos para la contraseña.
   # secrets: Otorga acceso al secreto que contiene la contraseña de la base de datos.
   wordpress:
@@ -41,15 +62,15 @@ services:
     volumes:
       - ${DATA_PATH}/wp_data:/var/www/html
     networks:
-      - super_network
+      - inception_network
     restart: unless-stopped
+    secrets:
+      - db_password
     environment:
       WORDPRESS_DB_HOST: mariadb:3306
       WORDPRESS_DB_NAME: ${MYSQL_DATABASE}
       WORDPRESS_DB_USER: ${MYSQL_USER}
       WORDPRESS_DB_PASSWORD_FILE: /run/secrets/db_password
-    secrets:
-      - db_password
 
   #--- Servicio Nginx ---
   # build: Construye la imagen del servidor web Nginx.
@@ -57,10 +78,11 @@ services:
   # depends_on: Asegura que el servicio 'wordpress' esté disponible antes de iniciar Nginx.
   # ports: Mapea el puerto 443 443l host al puerto 80 del contenedor, exponiendo el servicio.
   # volumes: Define los volúmenes para Nginx.
-  # volumes -: Monta el mismo volumen de WordPress para servir ficheros estáticos directamente.
-  # volumes -: Monta el fichero de configuración personalizado de Nginx dentro del contenedor.
-  # networks: Conecta el servicio a la red 'super_network'.
+  #		el volumen de WordPress para servir ficheros estáticos directamente.
+  #		el fichero de configuración personalizado de Nginx dentro del contenedor.
+  # networks: Conecta el servicio a la red 'inception_network'.
   # restart: Configura el reinicio automático.
+  #		always: El contenedor se reiniciará siempre que se detenga. Para garantizar que este siempre disponible.
   nginx:
     build: ./requirements/nginx
     container_name: nginx_service
@@ -72,24 +94,5 @@ services:
     - ${DATA_PATH}/wp_data:/var/www/html
     - ./requirements/nginx/conf/default.conf:/etc/nginx/conf.d/default.conf
     networks:
-    - super_network
+    - inception_network
     restart: always
-
-#--- Configuración Global ---
-# volumes: Declara los volúmenes nombrados para que Docker los gestione y los datos persistan.
-# networks: Declara la red personalizada para permitir la comunicación entre servicios por su nombre.
-# networks - driver: Especifica que se usa el driver 'bridge', estándar para comunicación en un mismo host.
-# secrets: Define los secretos, indicando la ruta en el host del fichero que contiene el valor sensible.
-volumes:
-  db_data:
-  wp_data:
-
-networks:
-  super_network:
-    driver: bridge
-
-secrets:
-  db_password:
-    file: ./secrets/db_password.txt
-  db_root_password:
-    file: ./secrets/db_root_password.txt
