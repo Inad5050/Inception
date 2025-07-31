@@ -1,4 +1,4 @@
-# FROM Utiliza la imagen oficial de Debian Bookworm slim como base.
+# FROM Utiliza la imagen oficial de Debian bullseye slim como base.
 # RUN Instala el servidor de MariaDB y su cliente.
 #	server: el motor de la base de datos, gestiona los datos y ejecuta las consultas.
 #	cliente: conjunto de herramientas para interactuar con el servidor desde la línea de comandos.
@@ -11,19 +11,20 @@
 #	Un contenedor está diseñado para ejecutar un único proceso principal.
 #	La vida del contenedor está ligada a la vida de este proceso: si el proceso termina, el contenedor se detiene.
 #	Si no se define ningun proceso, el contenedor arrancará y se detendrá al instante porque no tiene ninguna tarea que realizar.
+#	El ejecutable mysqld está diseñado para ejecutarse en primer plano por defecto, a pesar de ser un daemon.
 
-FROM debian:bookworm-slim
+FROM debian:bullseye-slim
 RUN apt-get update && \
     apt-get install -y mariadb-server mariadb-client
 COPY ./conf/server.cfg /etc/mysql/mariadb.conf.d/50-server.cnf
 EXPOSE 3306
 CMD ["mysqld"]
 
+# --- NOTAS ---
+
 # Las capas son los bloques de construcción de una imagen de Docker.
 # Cada instrucción en un Dockerfile que modifica el sistema de archivos (RUN, COPY, ADD) crea una nueva capa sobre la anterior.
-# Cada nueva capa le añade tamaño a la imagen
-
-# --- NOTAS ---
+# Cada nueva capa le añade tamaño a la imagen, por es mejor encadenar comandos como en este RUN
 
 # ENTRYPOINT es una alternativa a CMD, ejecuta un script de shell, que puede realizar tareas de inicialización más complejas
 # antes de ejecutar el proceso principal (como mysqld).
@@ -31,4 +32,3 @@ CMD ["mysqld"]
 # MY - nombre de la hija del creador
 # SQL - Structured Query Language
 # D - daemon, nombre dado a los procesos que proveen un servicio permanente y autónomo que se ejecuta en segundo plano
-
