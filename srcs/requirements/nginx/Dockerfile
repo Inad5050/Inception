@@ -1,6 +1,6 @@
 # FROM Utiliza la imagen base oficial de Debian bullseye en su versión "slim" para reducir el tamaño.
 # RUN actualiza los repositorios e instala NGINX.
-#	Actualiza la lista de paquetes disponibles en los repositorios de Debian (servidores remotos que contiene software).
+#	Actualiza la lista de paquetes disponibles en los repositorios (servidores remotos que contiene software) de Debian.
 #	Instala NGINX, omitiendo paquetes recomendados y sugeridos para una instalación mínima.    
 #	Crea un enlace simbólico para redirigir el log de acceso de NGINX a la salida estándar (stdout) del contenedor.
 #	Crea un enlace simbólico para redirigir el log de errores de NGINX a la salida de error estándar (stderr) del contenedor.

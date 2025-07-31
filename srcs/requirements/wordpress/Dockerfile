@@ -1,7 +1,40 @@
-# Utiliza una imagen base con PHP 8.2 y FPM sobre Alpine para un menor tamaño.
-FROM php:8.2-fpm-alpine
+# FROM Utiliza una imagen base con PHP 8.2 y FPM sobre Alpine para un menor tamaño.
+# RUN (1) Instala las extensiones de PHP necesarias para WordPress (MySQL, GD, etc.) y herramientas:
+#	wget: permite descargar archivos de la web (wget https://wordpress.org/latest.tar.gz)
+#	mariadb-client: para poder usar "mysqladmin ping" en el script del ENTRYPOINT
+# COPY (1) Copia la herramienta wp-cli (interfaz de línea de comandos de WordPress):
+#	permite gestionar WordPress sin necesidad de navegador.
+#	wp-cli se utiliza en el script de WordPress (wp-config.sh).
+# RUN (2) se le otorga a wp-cli permisos de ejecución.
+# RUN (3) Crea el directorio para los ficheros de WordPress.
+#	Conviene encadenar comandos RUN para crear menos capas y reducir el tamaño de la imagen
+#	cuando instalamos paquetes o descargamos archivos, 
+#	en el caso de chmod y mkdir las ganancias son insignificantes.
+# WORKDIR establece el directorio de trabajo para cualquier instrucción
+# 	(RUN, COPY, CMD, ENTRYPOINT...) posterior en el Dockerfile.
+# RUN (4) Descarga y descomprime WordPress.
+#	--strip-components=1 le indica a tar que elimine el primer nivel de directorios
+#	del archivo que está extrayendo, en lugar de extraer latest.tar.gz en /var/www/html/wordpress/
+#	lo extraera en /var/www/html/, dónde NGINX espera encontrarlos.
+#	chown (changeOwner) cambia el propietario y grupo de archivos de un archivo o directorio
+#	"chown nuevo_usuario:nuevo_grupo archivos_a_cambiar".
+#	Cambia el propietario de lo contenido en /var/www/html para otorgarle permisos 
+#	de lectura y escritura al usuario www-data, el usuario por defecto de NGINX y PHP-FPM.
+#	Los permisos por defecto son 644 (archivos) y 755 (directorios) (leer:4, escribir:" ejecutar:1").
+# COPY (2) Copia el script de configuración que se ejecutará al arranque.
+# RUN (5) Le otorga al script permisos de ejecución.
+# EXPOSE Expone el puerto 9000 para la comunicación con Nginx (PHP-FPM).
+#	Solo indica que puerto quiere usar el contenedor, los puertos se abren en el docker-compose.yml
+# ENTRYPOINT Punto de entrada para la configuración inicial. Ejecuta un script de shell
+# CMD Comando por defecto para iniciar PHP-FPM en primer plano.
+#	Le proporciona argumentos (php-fpm82 -F) al script del ENTRYPOINT
+#	la última linea del script es exec "$@", lo que significa que
+#	el script reemplaza su código por el del comando que recibe como argumento.
+#	Así podemos ejecutar un script inicial y luego cederle el control
+#	al proceso principal del servicio (php-fpm82), que es persistente, así evitamos que el Docker
+#	se cierre cuando acaba el script. 
 
-# Instala las extensiones de PHP necesarias para WordPress (MySQL, GD, etc.) y herramientas como wget y unzip.
+FROM php:8.2-fpm-alpine
 RUN apk update && apk add --no-cache \
     wget \
     unzip \
@@ -12,30 +45,22 @@ RUN apk update && apk add --no-cache \
     php82-curl \
     php82-zip \
     php82-mbstring
-
-# Copia la herramienta wp-cli (interfaz de línea de comandos de WordPress).
 COPY ./tools/wp-cli.phar /usr/local/bin/wp
 RUN chmod +x /usr/local/bin/wp
-
-# Crea el directorio para los ficheros de WordPress.
 RUN mkdir -p /var/www/html
 WORKDIR /var/www/html
-
-# Descarga y descomprime WordPress.
 RUN wget https://wordpress.org/latest.tar.gz && \
     tar -xzf latest.tar.gz --strip-components=1 && \
     rm latest.tar.gz && \
     chown -R www-data:www-data /var/www/html
-
-# Copia el script de configuración que se ejecutará al arranque.
 COPY ./tools/wp-config.sh /usr/local/bin/
 RUN chmod +x /usr/local/bin/wp-config.sh
-
-# Expone el puerto 9000 para la comunicación con Nginx (PHP-FPM).
 EXPOSE 9000
-
-# Punto de entrada para la configuración inicial.
 ENTRYPOINT ["/usr/local/bin/wp-config.sh"]
-
-# Comando por defecto para iniciar PHP-FPM en primer plano.
 CMD ["php-fpm82", "-F"]
+
+
+# --- NOTA ---
+# Diferencias entre las bases de Alpine y Debian
+#	Alpine: es más ligero
+#	Debian: tiene más compatibilidades  
