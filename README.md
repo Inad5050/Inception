@@ -1,5 +1,17 @@
 # Flujo del servidor
 
+## Actores
+
+### NGINX
+	El servidor web. Recibe las peticiones de los usuarios.
+### PHP-FPM
+	Interprete de PHP. Se mantiene a la espera de las peticiones de NGINX para WordPress.
+	Se instalará en el entorno del contenedor de WordPress.
+### WordPress
+	La aplicación. Es un conjunto de archivos en PHP que define como procesar peticiones dinámicas. Necesita un interprete (ej:PHP-FPM).
+### MariaDB
+	La base de datos. Es a memoria a largo plazo de WordPress.
+
 ## Flujo de Petición Dinámica (Página PHP)
 
 1.	Usuario → Nginx
@@ -7,7 +19,8 @@
 
 2.	Nginx → WordPress
 	Nginx determina que la petición es para un recurso dinámico (un fichero `.php`).
-	Reenvía la petición a través de la red interna al servicio `wordpress` en el puerto `9000` (PHP-FPM).
+	Reenvía la petición a través de la red interna al puerto 9000 del servicio `wordpress`.
+	Los archivos de WordPress se interpretan mediante PHP-FPM.
 
 3.	WordPress ↔ MariaDB
 	El proceso PHP de WordPress se ejecuta.

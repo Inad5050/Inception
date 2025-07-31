@@ -34,7 +34,7 @@ services:
   #   Tras la configuración inicial, WordPress ya no necesita el acceso root y utiliza el usuario con privilegios limitados que se acaba de crear
   # environment: Define variables de entorno. 
   #		El sufijo '_FILE' indica al contenedor que lea el valor desde el fichero secreto correspondiente.
-  #		MYSQL_PASSWORD_FILE: le dice a la aplicación de WordPress (no a Docker) dónde encontrar los secretos.
+  #		MYSQL_PASSWORD_FILE: le indica al script de inicialización de MariaDB dónde encontrar los secretos.
   #		run es una ubicación estándar en los sistemas operativos Linux modernos para almacenar datos de tiempo de ejecución. 
   mariadb:
     build: ./requirements/mariadb
@@ -85,7 +85,7 @@ services:
   # build: Construye la imagen del servidor web Nginx.
   # container_name: Asigna un nombre fijo al contenedor.
   # depends_on: Asegura que el servicio 'wordpress' esté disponible antes de iniciar Nginx.
-  # ports: Mapea el puerto 443 443l host al puerto 80 del contenedor, exponiendo el servicio.
+  # ports: Mapea el puerto 443 del host al puerto 443 del contenedor.
   # volumes: Define los volúmenes para Nginx.
   #		el volumen de WordPress para servir ficheros estáticos directamente.
   #		el fichero de configuración personalizado de Nginx dentro del contenedor.
