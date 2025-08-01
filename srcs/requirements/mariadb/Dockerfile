@@ -9,8 +9,11 @@
 #	La vida del contenedor está ligada a la vida de este proceso: si el proceso termina, el contenedor se detiene.
 #	Si no se define ningun proceso, el contenedor arrancará y se detendrá al instante porque no tiene ninguna tarea que realizar.
 #	El ejecutable mysqld está diseñado para ejecutarse en primer plano por defecto, a pesar de ser un daemon.
-# mysqld ejecuta automáticamente los comandos SQL necesarios para crear la base de datos y los usuarios.
-#	recibe las variables de entorno y los secretos desde el docker-compose.yml.
+# "mysqld" ejecuta automáticamente los comandos SQL necesarios para crear la base de datos y los usuarios.
+#	Recibe las variables de entorno y los secretos desde el docker-compose.yml.
+#	Durante la configuración inicial MariaDB necesita permisos root para: crear la base de datos para WordPress, 
+#	crear el usuario para WordPress y otorgar privilegios a ese usuario.
+#	Tras la configuración inicial, WordPress ya no necesita el acceso root y utiliza el usuario con privilegios limitados que se acaba de crear.
 # --bind-address=0.0.0.0
 #	MariaDB escuchara en todas las interfaces de red dentro del contenedor, no solo en localhost.
 

@@ -3,8 +3,10 @@
 #	wget: permite descargar archivos de la web (wget https://wordpress.org/latest.tar.gz)
 #	mariadb-client: para poder usar "mysqladmin ping" en el script del ENTRYPOINT
 # COPY (1) Copia la herramienta wp-cli (WordPess CommandLineInterface):
-#	permite gestionar WordPress sin necesidad de navegador.
 #	wp-cli se utiliza en el script de WordPress (wp-config.sh).
+#	Permite gestionar WordPress desde la terminal, sin necesidad de navegador.
+#	Proporciona comandos como "wp config create" y "wp core install" que automatizan la instalación,
+#	y evitan que tengamos que usar comandos como curl y similares.
 # RUN (2) se le otorga a wp-cli permisos de ejecución.
 # RUN (3) Crea el directorio para los ficheros de WordPress.
 #	Conviene encadenar comandos RUN para crear menos capas y reducir el tamaño de la imagen

@@ -1,12 +1,20 @@
 #!/bin/bash
 
-# Espera a que el host de la base de datos esté disponible.
+# Espera a que el servicio MariaDB esté disponible para aceptar conexiones.
+# La directiva depends_on: en en docker-compose solo garantiza que MariaDB se inicie antes de WP,
+# no garantiza que MariaDB este disponible.
 until mysqladmin ping -h"$WORDPRESS_DB_HOST" --silent; do
     echo "Waiting for database..."
     sleep 2
 done
 
-# Si el fichero wp-config.php no existe, créalo.
+# if [] Comprueba si WP ya ha sido instalado.
+# 	! es el operador de negación.
+# 	-f "wp-config.php" comprueba si el archivo wp-config.php existe.
+# 	Si no existe, ejecuta los comandos de wp-cli para crear el archivo de configuración wp-config.php
+# 	e instala el nucleo de WP.
+# "wp config create" es uno de los comandos de wp-cli
+#	nos ahorra tener que usar curl y similares
 if [ ! -f "wp-config.php" ]; then
     # Usa wp-cli para generar el fichero wp-config.php con las credenciales de la base de datos.
     wp config create \
@@ -20,8 +28,8 @@ if [ ! -f "wp-config.php" ]; then
     wp core install \
         --url=${DOMAIN_NAME} \
         --title="My WordPress Site" \
-        --admin_user=dangonz3 \
-        --admin_password=password \
+        --admin_user="$WORDPRESS_DB_ADMIN_USER" \
+        --admin_password="$WORDPRESS_DB_ADMIN_PASSWORD" \
         --admin_email=dangonz3@example.com \
         --allow-root
 fi
