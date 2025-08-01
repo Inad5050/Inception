@@ -16,13 +16,13 @@
 # 	(RUN, COPY, CMD, ENTRYPOINT...) posterior en el Dockerfile.
 # RUN (4) Descarga y descomprime WordPress.
 #	--strip-components=1 le indica a tar que elimine el primer nivel de directorios
-#	del archivo que está extrayendo, en lugar de extraer latest.tar.gz en /var/www/html/wordpress/
-#	lo extraera en /var/www/html/, dónde NGINX espera encontrarlos.
+#		del archivo que está extrayendo, en lugar de extraer latest.tar.gz en /var/www/html/wordpress/
+#		lo extraera en /var/www/html/, dónde NGINX espera encontrarlos.
 #	chown (ChangeOwner) cambia el propietario y grupo de archivos de un archivo o directorio,
-#	sintaxis: "chown nuevo_usuario:nuevo_grupo archivos_a_cambiar".
-#	Cambia el propietario de lo contenido en /var/www/html para otorgarle permisos
-#	de lectura y escritura al usuario www-data, el usuario por defecto de NGINX y PHP-FPM.
-#	Los permisos por defecto son 644 (archivos) y 755 (directorios) (leer:4 escribir:2 ejecutar:1).
+#		sintaxis: "chown nuevo_usuario:nuevo_grupo archivos_a_cambiar".
+#		Cambia el propietario de lo contenido en /var/www/html para otorgarle permisos
+#		de lectura y escritura al usuario www-data, el usuario por defecto de NGINX y PHP-FPM.
+#		Los permisos por defecto son 644 (archivos) y 755 (directorios) (leer:4 escribir:2 ejecutar:1).
 # COPY (2) Copia el script de configuración que se ejecutará al arranque.
 # RUN (5) Le otorga al script permisos de ejecución.
 # EXPOSE Expone el puerto 9000 para la comunicación con Nginx (PHP-FPM).
@@ -67,4 +67,4 @@ CMD ["php-fpm82", "-F"]
 
 # Diferencias entre las bases de Alpine y Debian
 #	Alpine: es más ligero
-#	Debian: tiene más compatibilidades  
+#	Debian: tiene más compatibilidades

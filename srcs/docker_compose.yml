@@ -1,21 +1,4 @@
-# networks: Declara la red personalizada para permitir la comunicación entre servicios por su nombre.
-# driver: Especifica que se usa el driver 'bridge', estándar para comunicación en un mismo host. \
-# Siempre está disponible. Es un componente del demonio de Docker.
-# Si omites la sección networks, Docker Compose crea automáticamente una red de tipo bridge.
-networks:
-  inception_network:
-    driver: bridge
-
-# secrets: Define los secretos, indicando la ruta en el host del fichero que contiene el valor sensible.
-# son las contraseñas de la base de datos mariaDB, que tambíen se compartiran con WordpPress.
-secrets:
-  db_password:
-    file: ./secrets/db_password.txt
-  db_root_password:
-    file: ./secrets/db_root_password.txt
-
 services:
-
 # --- Servicio MariaDB ---
 # build: Construye la imagen a partir del Dockerfile ubicado en la ruta especificada.
 #	Usamos un atajo para especificar el contexto de construcción de la imagen y 
@@ -113,3 +96,20 @@ services:
     networks:
     - inception_network
     restart: always
+
+
+# networks: Declara la red personalizada para permitir la comunicación entre servicios por su nombre.
+# driver: Especifica que se usa el driver 'bridge', estándar para comunicación en un mismo host. \
+# Siempre está disponible. Es un componente del demonio de Docker.
+# Si omites la sección networks, Docker Compose crea automáticamente una red de tipo bridge.
+networks:
+  inception_network:
+    driver: bridge
+
+# secrets: Define los secretos, indicando la ruta en el host del fichero que contiene el valor sensible.
+# son las contraseñas de la base de datos mariaDB, que tambíen se compartiran con WordpPress.
+secrets:
+  db_password:
+    file: ../secrets/db_password.txt
+  db_root_password:
+    file: ../secrets/db_root_password.txt
