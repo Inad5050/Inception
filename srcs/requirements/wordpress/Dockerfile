@@ -54,14 +54,14 @@ CMD ["php-fpm82", "-F"]
 
 # ENTRYPOINT Punto de entrada para la configuración inicial. Ejecuta un script de shell
 # CMD Comando por defecto para iniciar PHP-FPM en primer plano.
-#	Le proporciona argumentos (php-fpm82 -F) al script del ENTRYPOINT
-#	la última linea del script es exec "$@", lo que significa que
+#	Le proporciona argumentos (php-fpm82 -F) al script del ENTRYPOINT.
+#	La última linea del script es exec "$@", lo que significa que
 #	el script reemplaza su código por el del comando que recibe como argumento.
 #	Así podemos ejecutar un script inicial y luego cederle el control
 #	al proceso principal del servicio (php-fpm82), que es persistente, así evitamos que el contenedor
 #	(que se detendra si el proceso principal termina) se cierre cuando acaba el script.
-#	-F (foreground) evita que php-fpm82 se ejecute como daemon en segundo plano.
-#	Es una bandera propia de PHP-FPM, igual que "-g daemon off" lo es de NGINX.
+#	-F (foreground) evita que php-fpm82 se ejecute como daemon en segundo plano,
+#	es una bandera propia de PHP-FPM, igual que "-g daemon off" lo es de NGINX.
 
 # --- NOTAS ---
 
