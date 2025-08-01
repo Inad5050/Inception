@@ -5,7 +5,7 @@ services:
 #	la úbicación del Dockerfile (en el root del directorio especificado) a la vez.
 #	La forma explicita seria:
 #		context: ./ruta_al_directorio
-#		dockerfile: ./ruta_al_Dockerfile		 
+#		dockerfile: ./ruta_al_Dockerfile		
 # container_name: Asigna un nombre fijo al contenedor.
 # volumes: Monta un directorio del host en el contenedor para que los datos de la base de datos persistan.
 #	montar: la acción lógica de hacer que un sistema de archivos o un almacenamiento de datos sea accesible en un punto específico,
@@ -21,7 +21,7 @@ services:
 #	Tras la configuración inicial, WordPress ya no necesita el acceso root y utiliza el usuario con privilegios limitados que se acaba de crear.
 # environment: Define variables de entorno.
 #	El sufijo '_FILE' les indica a los scripts de inicialización de MariaDB y WordPress que no les estamos pasando el valor de la variable,
-#	sino de la ruta del archivo donde el valor de la variable de entorno está almacenado.
+#		sino de la ruta del archivo donde el valor de la variable de entorno está almacenado.
 #	MYSQL_PASSWORD_FILE: le indica al script de inicialización de MariaDB dónde encontrar la contraseña del usuario.
 #	MYSQL_ROOT_PASSWORD_FILE: le indica dónde encontrar la contraseña del usuario root.
   mariadb:
