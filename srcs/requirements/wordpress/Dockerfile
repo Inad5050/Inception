@@ -42,9 +42,9 @@ COPY ./tools/wp-cli.phar /usr/local/bin/wp
 RUN chmod +x /usr/local/bin/wp
 RUN mkdir -p /var/www/html
 WORKDIR /var/www/html
-RUN wget https://wordpress.org/latest.tar.gz && \
-    tar -xzf latest.tar.gz --strip-components=1 && \
-    rm latest.tar.gz && \
+RUN wget https://wordpress.org/wordpress-6.4.3.tar.gz && \
+    tar -xzf wordpress-6.4.3.tar.gz --strip-components=1 && \
+    rm wordpress-6.4.3.tar.gz && \
     chown -R www-data:www-data /var/www/html
 COPY ./tools/wp-config.sh /usr/local/bin/
 RUN chmod +x /usr/local/bin/wp-config.sh
