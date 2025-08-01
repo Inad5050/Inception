@@ -3,22 +3,22 @@
 #	server: el motor de la base de datos, gestiona los datos y ejecuta las consultas.
 #	cliente: conjunto de herramientas para interactuar con el servidor desde la línea de comandos.
 #	La opción -y (yes) responde automáticamente "sí" a cualquier pregunta que el gestor de paquetes apt pueda hacer durante la instalación.
-# COPY Copia el fichero de configuración personalizado a una ruta que MariaDB lee al arrancar.
-#	Los sistemas como MariaDB leen los archivos de configuración en orden alfabético. El prefijo 50- es una convención para asegurar que tu
-#	configuración personalizada se cargue en un punto intermedio, después de los valores por defecto del sistema pero antes de posibles ajustes finales.
 # EXPOSE Expone el puerto estándar de MariaDB.
 # CMD define el proceso principal que el contenedor debe ejecutar al arrancar.
 #	Un contenedor está diseñado para ejecutar un único proceso principal.
 #	La vida del contenedor está ligada a la vida de este proceso: si el proceso termina, el contenedor se detiene.
 #	Si no se define ningun proceso, el contenedor arrancará y se detendrá al instante porque no tiene ninguna tarea que realizar.
 #	El ejecutable mysqld está diseñado para ejecutarse en primer plano por defecto, a pesar de ser un daemon.
+# mysqld ejecuta automáticamente los comandos SQL necesarios para crear la base de datos y los usuarios.
+#	recibe las variables de entorno y los secretos desde el docker-compose.yml.
+# --bind-address=0.0.0.0
+#	MariaDB escuchara en todas las interfaces de red dentro del contenedor, no solo en localhost.
 
 FROM debian:bullseye-slim
-RUN apt-get update && \
-    apt-get install -y mariadb-server mariadb-client
-COPY ./conf/server.cfg /etc/mysql/mariadb.conf.d/50-server.cnf
+RUN apt update && \
+    apt install -y mariadb-server mariadb-client
 EXPOSE 3306
-CMD ["mysqld"]
+CMD ["mysqld", "--bind-address=0.0.0.0"]
 
 # --- NOTAS ---
 

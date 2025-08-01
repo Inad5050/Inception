@@ -15,8 +15,8 @@
 #	El archivo nginx.conf principal de NGINX (en la imagen base) contiene una directiva include /etc/nginx/conf.d/*.conf;.
 
 FROM debian:bullseye-slim
-RUN apt-get update \                 
-&& apt-get install --no-install-recommends --no-install-suggests -y nginx \ 
+RUN apt update \                 
+&& apt install --no-install-recommends --no-install-suggests -y nginx \ 
 && ln -sf /dev/stdout /var/log/nginx/access.log \ 
 && ln -sf /dev/stderr /var/log/nginx/error.log
 STOPSIGNAL SIGQUIT
@@ -46,3 +46,8 @@ CMD ["nginx", "-g", "daemon off;"]
 # Forma shell: CMD comando param1 param2
 # 	Ejecuta el comando dentro de una shell, por defecto /bin/sh -c. 
 # 	Es útil si necesitas funcionalidades de la shell, como las redirecciónes o las variables de entorno.
+
+# Contexto de construcción
+# El Dockerfile solo puede ver y acceder a los archivos que están dentro de su contexto de
+# construcción, (en este caso el directorio /mariadb). No tiene acceso a, por ejemplo, 
+# .env en /requirement. De forma que cada Dockerfile necesita su .conf o su .env de requerirlos.

@@ -17,10 +17,10 @@ secrets:
 services:
   #--- Servicio MariaDB ---
   # build: Construye la imagen a partir del Dockerfile ubicado en la ruta especificada.
-  #   usamos un atajo para especificar el contexto de construcción de la imagen y 
+  #   Usamos un atajo para especificar el contexto de construcción de la imagen y 
   #   la úbicación del Dockerfile (en el root del directorio especificado) a la vez.
-  #   la forma explicita seria:
-  #     context: ./ruta_al_contexto
+  #   La forma explicita seria:
+  #     context: ./ruta_al_directorio
   #     dockerfile: ./ruta_al_Dockerfile       
   # container_name: Asigna un nombre fijo al contenedor.
   # volumes: Monta un directorio del host en el contenedor para que los datos de la base de datos persistan.
@@ -30,9 +30,9 @@ services:
   # restart: Configura el contenedor para que se reinicie siempre, a menos que se detenga manualmente.
   # secrets: Otorga al contenedor acceso a los secretos de Docker definidos en el nivel raíz de docker-compose.
   #   Durante la configuración inicial MariaDB necesita permisos root para: crear la base de datos para WordPress, 
-  #   crear el usuario para WordPress, otorgar privilegios a ese usuario.
-  #   Tras la configuración inicial, WordPress ya no necesita el acceso root y utiliza el usuario con privilegios limitados que se acaba de crear
-  # environment: Define variables de entorno. 
+  #   crear el usuario para WordPress y otorgar privilegios a ese usuario.
+  #   Tras la configuración inicial, WordPress ya no necesita el acceso root y utiliza el usuario con privilegios limitados que se acaba de crear.
+  # environment: Define variables de entorno.
   #		El sufijo '_FILE' indica al contenedor que lea el valor desde el fichero secreto correspondiente.
   #		MYSQL_PASSWORD_FILE: le indica al script de inicialización de MariaDB dónde encontrar los secretos.
   #		run es una ubicación estándar en los sistemas operativos Linux modernos para almacenar datos de tiempo de ejecución. 
