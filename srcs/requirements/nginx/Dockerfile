@@ -1,9 +1,11 @@
 # FROM Utiliza la imagen base oficial de Debian bullseye en su versión "slim" para reducir el tamaño.
-# RUN actualiza los repositorios e instala NGINX.
+# RUN (1) actualiza los repositorios e instala NGINX.
 #	Actualiza la lista de paquetes disponibles en los repositorios (servidores remotos que contiene software) de Debian.
 #	Instala NGINX, omitiendo paquetes recomendados y sugeridos para una instalación mínima.    
 #	Crea un enlace simbólico para redirigir el log de acceso de NGINX a la salida estándar (stdout) del contenedor.
 #	Crea un enlace simbólico para redirigir el log de errores de NGINX a la salida de error estándar (stderr) del contenedor.
+#	Instala OpenSSL y crea un directorio para los certificados.
+# RUN (2) Generar el certificado SSL y la clave privada.
 # STOPSIGNAL define qué señal específica envía el demonio de Docker al contenedor para solicitar su detención 
 #	cuando se ejecuta el comando docker stop.
 #	Si no se especifica Docker envía la señal SIGTERM.
@@ -18,7 +20,13 @@ FROM debian:bullseye-slim
 RUN apt update \                 
 && apt install --no-install-recommends --no-install-suggests -y nginx \ 
 && ln -sf /dev/stdout /var/log/nginx/access.log \ 
-&& ln -sf /dev/stderr /var/log/nginx/error.log
+&& ln -sf /dev/stderr /var/log/nginx/error.log \ 
+&& apt install -y openssl \ 
+&& mkdir -p /etc/ssl/private/
+RUN openssl req -x509 -nodes -days 365 -newkey rsa:2048 \ 
+-keyout /etc/ssl/private/nginx-selfsigned.key \ 
+-out /etc/ssl/certs/nginx-selfsigned.crt \ 
+-subj "/C=ES/ST=Bizkaia/L=Bilbao/O=42/OU=student/CN=dangonz3.42.fr"
 STOPSIGNAL SIGQUIT
 COPY ./conf/default.conf /etc/nginx/conf.d
 CMD ["nginx", "-g", "daemon off;"]

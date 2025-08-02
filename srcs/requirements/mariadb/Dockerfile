@@ -18,7 +18,7 @@
 #	MariaDB escuchara en todas las interfaces de red dentro del contenedor, no solo en localhost.
 
 FROM debian:bullseye-slim
-RUN apt update && \
+RUN apt update && \ 
     apt install -y mariadb-server mariadb-client
 EXPOSE 3306
 CMD ["mysqld", "--bind-address=0.0.0.0"]

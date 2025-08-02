@@ -29,14 +29,14 @@
 #	Solo indica que puerto quiere usar el contenedor, los puertos se abren en el docker-compose.yml
 
 FROM php:8.2-fpm-alpine
-RUN apk update && apk add --no-cache \
-    wget \
-    mariadb-client \
-    php82-fpm \
-    php82-mysqli \
-    php82-gd \
-    php82-curl \
-    php82-zip \
+RUN apk update && apk add --no-cache \ 
+    wget \ 
+    mariadb-client \ 
+    php82-fpm \ 
+    php82-mysqli \ 
+    php82-gd \ 
+    php82-curl \ 
+    php82-zip \ 
     php82-mbstring
 COPY ./tools/wp-cli.phar /usr/local/bin/wp
 RUN chmod +x /usr/local/bin/wp

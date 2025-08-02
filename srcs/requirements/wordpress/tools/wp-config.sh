@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 # Espera a que el servicio MariaDB esté disponible para aceptar conexiones.
 # La directiva depends_on: en en docker-compose solo garantiza que MariaDB se inicie antes de WP,
