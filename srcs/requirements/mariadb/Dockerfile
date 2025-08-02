@@ -9,9 +9,8 @@
 # RUN (2) le da al script permisos de ejecución.
 # EXPOSE Expone user el puerto estándar de MariaDB.
 # ENTRYPOINT Ejecuta el script, recibe CMD como argumento.
-#	Necesitamos el script porque el proceso mysqld usa named volumes (volumenes gestionados por docker) 
-#	y por requisitos del subject queremos usar mounted volumes (volumenes preexistentes en el host),
-#	de forma que la configuración (mysql_install_db en el script) de estos últimos corre de nuestra cuenta.
+#	Necesitamos el script porque queremos usar mounted volumes (volumenes preexistentes en el host), al contrario que los named volumes
+#	estos no los gestiona docker, de forma que la configuración (mysql_install_db en el script) corre de nuestra cuenta.
 #	El script usara exec para sustituir su código por el de mysqld, así tendremos el proceso persistente que el container necesita. 
 # CMD define el proceso principal que el contenedor debe ejecutar al arrancar.
 #	Un contenedor está diseñado para ejecutar un único proceso principal.

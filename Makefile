@@ -1,7 +1,7 @@
 SRC_DIR = srcs
 DOCKER_COMPOSE_FILE = $(SRC_DIR)/docker_compose.yml
 
-VOLUME_DIR = ./home/dangonz3/InceptionData
+VOLUME_DIR = /home/dangonz3/InceptionData
 DATABASE_DIR = $(VOLUME_DIR)/db_data
 WEBFILE_DIR = $(VOLUME_DIR)/wp_data
 
@@ -54,7 +54,7 @@ elimina cualquier volumen que no esté conectado a un contenedor en ejecución o
 una acción tan destructiva. Esta bandera omite esa pregunta y procede directamente con la eliminación.
 fclean: clean
 	docker system prune --all --volumes --force
-	sudo rm -fr /home/dangonz3/InceptionData
+	sudo rm -fr $(VOLUME_DIR)
 	@echo "$(COLOR_GREEN)------------ MESSAGE: FCLEANING COMPLETED ------------ $(COLOR_RESET)"
 
 re: fclean all
