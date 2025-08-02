@@ -3,7 +3,9 @@
 #	server: el motor de la base de datos, gestiona los datos y ejecuta las consultas.
 #	cliente: conjunto de herramientas para interactuar con el servidor desde la línea de comandos.
 #	La opción -y (yes) responde automáticamente "sí" a cualquier pregunta que el gestor de paquetes apt pueda hacer durante la instalación.
-# EXPOSE Expone el puerto estándar de MariaDB.
+#	mkdir -p /run/mysqld: crea un directorio que el proceso mysqld 	ecesitara.
+#	chown -R mysql:mysql /run/mysqld: nombra como dueño al usuario mysql (el user que usa mysqld) para darle permisos
+# EXPOSE Expone user el puerto estándar de MariaDB.
 # CMD define el proceso principal que el contenedor debe ejecutar al arrancar.
 #	Un contenedor está diseñado para ejecutar un único proceso principal.
 #	La vida del contenedor está ligada a la vida de este proceso: si el proceso termina, el contenedor se detiene.
@@ -19,7 +21,9 @@
 
 FROM debian:bullseye-slim
 RUN apt update && \ 
-    apt install -y mariadb-server mariadb-client
+    apt install -y mariadb-server mariadb-client && \ 
+	mkdir -p /run/mysqld && \ 
+    chown -R mysql:mysql /run/mysqld
 EXPOSE 3306
 CMD ["mysqld", "--bind-address=0.0.0.0"]
 
