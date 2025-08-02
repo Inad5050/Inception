@@ -54,7 +54,7 @@ elimina cualquier volumen que no esté conectado a un contenedor en ejecución o
 una acción tan destructiva. Esta bandera omite esa pregunta y procede directamente con la eliminación.
 fclean: clean
 	docker system prune --all --volumes --force
-	rm -fr $(VOLUME_DIR)
+	sudo rm -fr $(VOLUME_DIR)
 	@echo "$(COLOR_GREEN)------------ MESSAGE: FCLEANING COMPLETED ------------ $(COLOR_RESET)"
 
 re: fclean all
