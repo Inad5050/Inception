@@ -4,7 +4,8 @@
 #	cliente: conjunto de herramientas para interactuar con el servidor desde la línea de comandos.
 #	La opción -y (yes) responde automáticamente "sí" a cualquier pregunta que el gestor de paquetes apt pueda hacer durante la instalación.
 #	mkdir -p /run/mysqld: crea un directorio que el proceso mysqld 	ecesitara.
-#	chown -R mysql:mysql /run/mysqld: nombra como dueño al usuario mysql (el user que usa mysqld) para darle permisos
+#	chown -R mysql:mysql /run/mysqld: nombra como dueño del dir al usuario mysql (el user que mysqld usa), así le da los permisos que necesita.
+#	mysql_install_db... : prepara el directorio con toda la estructura y las tablas de sistema por defecto que MariaDB necesita.
 # EXPOSE Expone user el puerto estándar de MariaDB.
 # CMD define el proceso principal que el contenedor debe ejecutar al arrancar.
 #	Un contenedor está diseñado para ejecutar un único proceso principal.
@@ -23,7 +24,8 @@ FROM debian:bullseye-slim
 RUN apt update && \ 
     apt install -y mariadb-server mariadb-client && \ 
 	mkdir -p /run/mysqld && \ 
-    chown -R mysql:mysql /run/mysqld
+    chown -R mysql:mysql /run/mysqld && \ 
+	mysql_install_db --user=mysql --datadir=/var/lib/mysql
 EXPOSE 3306
 CMD ["mysqld", "--bind-address=0.0.0.0"]
 
