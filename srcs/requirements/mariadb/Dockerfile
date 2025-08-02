@@ -9,6 +9,10 @@
 # RUN (2) le da al script permisos de ejecución.
 # EXPOSE Expone user el puerto estándar de MariaDB.
 # ENTRYPOINT Ejecuta el script, recibe CMD como argumento.
+#	Necesitamos el script porque el proceso mysqld usa named volumes (volumenes gestionados por docker) 
+#	y por requisitos del subject queremos usar mounted volumes (volumenes preexistentes en el host),
+#	de forma que la configuración (mysql_install_db en el script) de estos últimos corre de nuestra cuenta.
+#	El script usara exec para sustituir su código por el de mysqld, así tendremos el proceso persistente que el container necesita. 
 # CMD define el proceso principal que el contenedor debe ejecutar al arrancar.
 #	Un contenedor está diseñado para ejecutar un único proceso principal.
 #	La vida del contenedor está ligada a la vida de este proceso: si el proceso termina, el contenedor se detiene.
@@ -19,6 +23,8 @@
 #	Durante la configuración inicial MariaDB necesita permisos root para: crear la base de datos para WordPress, 
 #	crear el usuario para WordPress y otorgar privilegios a ese usuario.
 #	Tras la configuración inicial, WordPress ya no necesita el acceso root y utiliza el usuario con privilegios limitados que se acaba de crear.
+# --user=mysql
+#	Nuestra lógica depende del uso del user mysql, por los permisos concedidos por chmod, nos aseguramos de que mysqld lo use.
 # --bind-address=0.0.0.0
 #	MariaDB escuchara en todas las interfaces de red dentro del contenedor, no solo en localhost.
 

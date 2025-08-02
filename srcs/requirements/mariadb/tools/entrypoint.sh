@@ -1,17 +1,13 @@
 #!/bin/sh
 
-# Comprueba si el directorio de datos ya está inicializado.
-# Busca la carpeta 'mysql', que contiene las tablas de sistema.
+# Comprueba si el volumen de datos ya está inicializado.
+# Estara iniciado si no es la primera vez que construimos los contenedores.
+# La existencia de la carpeta 'mysql', que contiene las tablas de sistema,
+# es el giveaway de si está iniciado.
+# mysql_install_db: inicializa el directorio de datos de MariaDB
 if [ ! -d "/var/lib/mysql/mysql" ]; then
     echo "Directorio de MariaDB no encontrado. Inicializando base de datos..."
-
-    # Inicializa el directorio de datos de MariaDB
     mysql_install_db --user=mysql --datadir=/var/lib/mysql
-
-    # Aquí iría la lógica para crear la base de datos, el usuario y la contraseña
-    # usando los secretos y variables de entorno. Por simplicidad, el
-    # proceso mysqld lo manejará, pero un script más robusto lo haría aquí.
-
 else
     echo "Directorio de MariaDB encontrado. Omitiendo inicialización."
 fi
