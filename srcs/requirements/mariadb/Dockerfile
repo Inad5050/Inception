@@ -1,12 +1,14 @@
 # FROM Utiliza la imagen oficial de Debian bullseye slim como base.
-# RUN Instala el servidor de MariaDB y su cliente.
+# RUN (1) Instala el servidor de MariaDB y su cliente.
 #	server: el motor de la base de datos, gestiona los datos y ejecuta las consultas.
 #	cliente: conjunto de herramientas para interactuar con el servidor desde la línea de comandos.
 #	La opción -y (yes) responde automáticamente "sí" a cualquier pregunta que el gestor de paquetes apt pueda hacer durante la instalación.
 #	mkdir -p /run/mysqld: crea un directorio que el proceso mysqld 	ecesitara.
 #	chown -R mysql:mysql /run/mysqld: nombra como dueño del dir al usuario mysql (el user que mysqld usa), así le da los permisos que necesita.
-#	mysql_install_db... : prepara el directorio con toda la estructura y las tablas de sistema por defecto que MariaDB necesita.
+# COPY copia el script de arrance.
+# RUN (2) le da al script permisos de ejecución.
 # EXPOSE Expone user el puerto estándar de MariaDB.
+# ENTRYPOINT Ejecuta el script, recibe CMD como argumento.
 # CMD define el proceso principal que el contenedor debe ejecutar al arrancar.
 #	Un contenedor está diseñado para ejecutar un único proceso principal.
 #	La vida del contenedor está ligada a la vida de este proceso: si el proceso termina, el contenedor se detiene.
@@ -24,10 +26,12 @@ FROM debian:bullseye-slim
 RUN apt update && \ 
     apt install -y mariadb-server mariadb-client && \ 
 	mkdir -p /run/mysqld && \ 
-    chown -R mysql:mysql /run/mysqld && \ 
-	mysql_install_db --user=mysql --datadir=/var/lib/mysql
+    chown -R mysql:mysql /run/mysqld
+COPY ./tools/entrypoint.sh /usr/local/bin/entrypoint.sh
+RUN chmod +x /usr/local/bin/entrypoint.sh
 EXPOSE 3306
-CMD ["mysqld", "--bind-address=0.0.0.0"]
+ENTRYPOINT ["entrypoint.sh"]
+CMD ["mysqld", "--user=mysql", "--bind-address=0.0.0.0"]
 
 # --- NOTAS ---
 
