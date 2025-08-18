@@ -1,7 +1,7 @@
 SRC_DIR = srcs
 DOCKER_COMPOSE_FILE = $(SRC_DIR)/docker_compose.yml
 
-VOLUME_DIR = /home/dangonz3/InceptionData
+VOLUME_DIR = /home/dangonz3/data
 DATABASE_DIR = $(VOLUME_DIR)/db_data
 WEBFILE_DIR = $(VOLUME_DIR)/wp_data
 
