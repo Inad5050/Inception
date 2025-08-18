@@ -45,5 +45,5 @@ fi
 
 # Ejecuta el comando principal del contenedor (CMD).
 # Usar CMD en lugar de pasarle a exec un valor directo nos permite modicar el script 
-# alterando CMD desde la línea de comandos (docker run) o desde docker-compose (command:).
+# alterando CMD desde la línea de comandos (docker run) o desde docker-compose (con la directiva command:).
 exec "$@"

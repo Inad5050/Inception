@@ -1,29 +1,29 @@
 services:
 # --- Servicio MariaDB ---
 # build: Construye la imagen a partir del Dockerfile ubicado en la ruta especificada.
-#	Usamos un atajo para especificar el contexto de construcción de la imagen y 
-#	la úbicación del Dockerfile (en el root del directorio especificado) a la vez.
-#	La forma explicita seria:
-#		context: ./ruta_al_directorio
-#		dockerfile: ./ruta_al_Dockerfile		
+# 	Usamos un atajo para especificar el contexto de construcción de la imagen y
+# 	la úbicación del Dockerfile (en el root del directorio especificado) a la vez.
+# 	La forma explicita seria:
+# 		context: ./ruta_al_directorio
+# 		dockerfile: ./ruta_al_Dockerfile
 # container_name: Asigna un nombre fijo al contenedor.
 # volumes: Monta un directorio del host en el contenedor para que los datos de la base de datos persistan.
-#	montar: la acción lógica de hacer que un sistema de archivos o un almacenamiento de datos sea accesible en un punto específico,
-#	establecer un enlace directo entre el directorio del host (${DATA_PATH}/db_data) y el directorio del contenedor (/var/lib/mysql).
+#	  montar: la acción lógica de hacer que un sistema de archivos o un almacenamiento de datos sea accesible en un punto específico,
+#	    establecer un enlace directo entre el directorio del host (${DATA_PATH}/db_data) y el directorio del contenedor (/var/lib/mysql).
 # networks: Conecta el servicio a la red personalizada 'inception_network'.
-# restart: Configura el contenedor para que se reinicie siempre, a menos que se detenga manualmente.
+# restart: el contenedor se reiniciará si falla, pero no si ha sido detenido manualmente por un usuario.
 # secrets: Otorga al contenedor acceso a los secretos de Docker definidos en el nivel raíz de docker-compose.
-#	Cuando declaramos secrets: docker coge el contenido del archivo local (ej: ./secrets/db_password.txt)
-#	y crea un nuevo archivo en el contenedor, en la ruta /run (ej: /run/secrets/db_password).
-#	run es una ubicación estándar en los sistemas operativos Linux modernos para almacenar datos de tiempo de ejecución.
-#	Durante la configuración inicial MariaDB necesita permisos root para: crear la base de datos para WordPress, 
-#	crear el usuario para WordPress y otorgar privilegios a ese usuario.
-#	Tras la configuración inicial, WordPress ya no necesita el acceso root y utiliza el usuario con privilegios limitados que se acaba de crear.
+#	  Cuando declaramos secrets: docker coge el contenido del archivo local (ej: ./secrets/db_password.txt)
+#	  y crea un nuevo archivo en el contenedor, en la ruta /run (ej: /run/secrets/db_password).
+#	  run es una ubicación estándar en los sistemas operativos Linux modernos para almacenar datos de tiempo de ejecución.
+#	  Durante la configuración inicial MariaDB necesita permisos root para: crear la base de datos para WordPress,
+#	    crear el usuario para WordPress y otorgar privilegios a ese usuario.
+#	    Tras la configuración inicial, WordPress ya no necesita el acceso root y utiliza el usuario con privilegios limitados que se acaba de crear.
 # environment: Define variables de entorno.
-#	El sufijo '_FILE' les indica a los scripts de inicialización de MariaDB y WordPress que no les estamos pasando el valor de la variable,
-#		sino de la ruta del archivo donde el valor de la variable de entorno está almacenado.
-#	MYSQL_PASSWORD_FILE: le indica al script de inicialización de MariaDB dónde encontrar la contraseña del usuario.
-#	MYSQL_ROOT_PASSWORD_FILE: le indica dónde encontrar la contraseña del usuario root.
+#	  El sufijo '_FILE' les indica a los scripts de inicialización de MariaDB y WordPress que no les estamos pasando el valor de la variable,
+#		  sino de la ruta del archivo donde el valor de la variable de entorno está almacenado.
+#	  MYSQL_PASSWORD_FILE: le indica al script de inicialización de MariaDB dónde encontrar la contraseña del usuario.
+#	  MYSQL_ROOT_PASSWORD_FILE: le indica dónde encontrar la contraseña del usuario root.
   mariadb:
     build: ./requirements/mariadb
     container_name: mariadb_service
@@ -48,10 +48,10 @@ services:
 # volumes: Monta el directorio de datos de WordPress para que los ficheros (temas, plugins, uploads) persistan.
 # networks: Conecta el servicio a la red 'inception_network'.
 # restart: Configura el reinicio automático.
-#	unless-stopped: el contenedor se reiniciará si falla, pero no si ha sido detenido manualmente por un usuario.
+#	  unless-stopped: el contenedor se reiniciará si falla, pero no si ha sido detenido manualmente por un usuario.
 # secrets: Otorga acceso al secreto que contiene la contraseña de la base de datos.
 #	WordPress solo necesita conocer el usuario y contraseña que usara para acceder a MariaDB.
-#	Las credenciales root son solo necearias para la configuración inicial de MariaDB.
+#	  Las credenciales root son solo necearias para la configuración inicial de MariaDB.
 # environment: Define variables para que WordPress se conecte a la base de datos, usando secretos para la contraseña.
   wordpress:
     build: ./requirements/wordpress
@@ -78,11 +78,11 @@ services:
 # depends_on: Asegura que el servicio 'wordpress' esté disponible antes de iniciar Nginx.
 # ports: Mapea el puerto 443 del host al puerto 443 del contenedor.
 # volumes: Define los volúmenes para Nginx.
-#	el volumen de WordPress para servir ficheros estáticos directamente.
-#	el fichero de configuración personalizado de Nginx dentro del contenedor.
+#	  el volumen de WordPress para servir ficheros estáticos directamente.
+#	  el fichero de configuración personalizado de Nginx dentro del contenedor.
 # networks: Conecta el servicio a la red 'inception_network'.
 # restart: Configura el reinicio automático.
-#	always: El contenedor se reiniciará siempre que se detenga. Para garantizar que este siempre disponible.
+#	  always: El contenedor se reiniciará siempre que se detenga. Para garantizar que este siempre disponible.
   nginx:
     build: ./requirements/nginx
     container_name: nginx_service
@@ -99,7 +99,7 @@ services:
 
 
 # networks: Declara la red personalizada para permitir la comunicación entre servicios por su nombre.
-# driver: Especifica que se usa el driver 'bridge', estándar para comunicación en un mismo host. \
+#   driver: Especifica que se usa el driver 'bridge', estándar para comunicación en un mismo host. \
 # Siempre está disponible. Es un componente del demonio de Docker.
 # Si omites la sección networks, Docker Compose crea automáticamente una red de tipo bridge.
 networks:

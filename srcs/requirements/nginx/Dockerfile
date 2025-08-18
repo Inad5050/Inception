@@ -6,7 +6,7 @@
 #	Crea un enlace simbólico para redirigir el log de errores de NGINX a la salida de error estándar (stderr) del contenedor.
 #	Instala OpenSSL y crea un directorio para los certificados.
 # RUN (2) Generar el certificado SSL y la clave privada.
-# STOPSIGNAL define qué señal específica envía el demonio de Docker al contenedor para solicitar su detención 
+# STOPSIGNAL define qué señal específica envía el demonio de Docker al contenedor para solicitar su detención
 #	cuando se ejecuta el comando docker stop.
 #	Si no se especifica Docker envía la señal SIGTERM.
 #	SIGTERM: Provoca un apagado rápido. Las peticiones que están siendo procesadas en ese instante pueden interrumpirse.
@@ -56,6 +56,6 @@ CMD ["nginx", "-g", "daemon off;"]
 # 	Es útil si necesitas funcionalidades de la shell, como las redirecciónes o las variables de entorno.
 
 # Contexto de construcción
-# El Dockerfile solo puede ver y acceder a los archivos que están dentro de su contexto de
-# construcción, (en este caso el directorio /mariadb). No tiene acceso a, por ejemplo, 
-# .env en /requirement. De forma que cada Dockerfile necesita su .conf o su .env de requerirlos.
+# 	El Dockerfile solo puede ver y acceder a los archivos que están dentro de su contexto de
+# 	construcción, (en este caso el directorio /mariadb). No tiene acceso a, por ejemplo, 
+# 	.env en /requirement. De forma que cada Dockerfile necesita su .conf o su .env de requerirlos.

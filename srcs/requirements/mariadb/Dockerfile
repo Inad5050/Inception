@@ -3,7 +3,7 @@
 #	server: el motor de la base de datos, gestiona los datos y ejecuta las consultas.
 #	cliente: conjunto de herramientas para interactuar con el servidor desde la línea de comandos.
 #	La opción -y (yes) responde automáticamente "sí" a cualquier pregunta que el gestor de paquetes apt pueda hacer durante la instalación.
-#	mkdir -p /run/mysqld: crea un directorio que el proceso mysqld 	ecesitara.
+#	mkdir -p /run/mysqld: crea un directorio que el proceso mysqld necesitara.
 #	chown -R mysql:mysql /run/mysqld: nombra como dueño del dir al usuario mysql (el user que mysqld usa), así le da los permisos que necesita.
 # COPY copia el script de arrance.
 # RUN (2) le da al script permisos de ejecución.
