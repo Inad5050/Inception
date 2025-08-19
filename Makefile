@@ -74,8 +74,9 @@ endef
 
 # Esperamos a que wordpress rellene su volumen para darle permiso a su contenido.
 define WAIT_FOR_WP_SCRIPT
-	@timeout=60; \
+	@timeout=30; \
 	while [ ! -f $(WEBFILE_DIR)/wp-config.php ] && [ $$timeout -gt 0 ]; do \
+		@echo "Waiting"; \
 		sleep 1; \
 		timeout=$$((timeout-1)); \
 	done; \
