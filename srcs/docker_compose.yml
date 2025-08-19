@@ -97,7 +97,6 @@ services:
     - inception_network
     restart: always
 
-
 # networks: Declara la red personalizada para permitir la comunicación entre servicios por su nombre.
 #   driver: Especifica que se usa el driver 'bridge', estándar para comunicación en un mismo host. \
 # Siempre está disponible. Es un componente del demonio de Docker.
