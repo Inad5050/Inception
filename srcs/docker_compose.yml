@@ -70,7 +70,7 @@ services:
       WORDPRESS_DB_USER: ${MYSQL_USER}
       WORDPRESS_DB_PASSWORD_FILE: /run/secrets/db_password
       WORDPRESS_DB_HOST: ${WORDPRESS_DB_HOST}
-      DOMAIN_NAME: dangonz3.42.fr
+      DOMAIN_NAME: ${DOMAIN_NAME}
 
 # --- Servicio Nginx ---
 # build: Construye la imagen del servidor web Nginx.
