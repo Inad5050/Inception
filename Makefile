@@ -28,8 +28,8 @@ $(DATABASE_DIR):
 	mkdir -p $(DATABASE_DIR)
 $(WEBFILE_DIR):
 	mkdir -p $(WEBFILE_DIR)
-	sudo find ${DATA_PATH}/wp_data -type d -exec chmod 755
-	sudo find ${DATA_PATH}/wp_data -type f -exec chmod 644
+	sudo find ${DATA_PATH}/wp_data -type d -exec chmod 755 {} \;
+	sudo find ${DATA_PATH}/wp_data -type f -exec chmod 644 {} \;
 
 # docker-compose down: Detiene los contenedores de los servicios definidos y elimina los contenedores y \
 las redes que creó docker-compose up.
