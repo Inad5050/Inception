@@ -15,7 +15,8 @@ fuente se aplique.
 # docker volume ls: Lists all the volumes that are currently available on the host machine.
 # docker network ls: Lists all the networks the Engine daemon knows about.
 all: $(VOLUME_DIR) $(DATABASE_DIR) $(WEBFILE_DIR)
-	docker-compose -f $(DOCKER_COMPOSE_FILE) up --build
+	./setup_host.sh
+	docker-compose -f $(DOCKER_COMPOSE_FILE) up -d --build
 	@echo "$(COLOR_GREEN)------------ MESSAGE: DOCKER CONTAINERS UP ------------ $(COLOR_RESET)"	
 	docker ps
 	docker volume ls
