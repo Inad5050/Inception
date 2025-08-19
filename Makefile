@@ -15,9 +15,12 @@ fuente se aplique.
 # docker volume ls: Lists all the volumes that are currently available on the host machine.
 # docker network ls: Lists all the networks the Engine daemon knows about.
 all: $(VOLUME_DIR) $(DATABASE_DIR) $(WEBFILE_DIR)
-	./setup_host.sh
+	${SETUP_HOST_SCRIPT}
 	docker-compose -f $(DOCKER_COMPOSE_FILE) up -d --build
 	@echo "$(COLOR_GREEN)------------ MESSAGE: DOCKER CONTAINERS UP ------------ $(COLOR_RESET)"	
+	${WAIT_FOR_WP_SCRIPT}
+	sudo find ${WEBFILE_DIR} -type d -exec chmod 755 {} \;
+	sudo find ${WEBFILE_DIR} -type f -exec chmod 644 {} \;
 	docker ps
 	docker volume ls
 	docker network ls
@@ -28,8 +31,6 @@ $(DATABASE_DIR):
 	mkdir -p $(DATABASE_DIR)
 $(WEBFILE_DIR):
 	mkdir -p $(WEBFILE_DIR)
-	sudo find ${DATA_PATH}/wp_data -type d -exec chmod 755 {} \;
-	sudo find ${DATA_PATH}/wp_data -type f -exec chmod 644 {} \;
 
 # docker-compose down: Detiene los contenedores de los servicios definidos y elimina los contenedores y \
 las redes que creó docker-compose up.
@@ -57,3 +58,29 @@ fclean: clean
 re: fclean all
 
 .PHONY:	all, clean, fclean, re, commit
+
+# Editamos etc/hosts para que la maquina virtual reconozca dangonz3.42.fr como localhost.
+define SETUP_HOST_SCRIPT
+	@HOST_IP="127.0.0.1"; \
+	DOMAIN="dangonz3.42.fr"; \
+	HOSTS_ENTRY="$${HOST_IP} $${DOMAIN}"; \
+	if ! grep -q "$${HOSTS_ENTRY}" /etc/hosts; then \
+		echo "Añadiendo '$${HOSTS_ENTRY}' a /etc/hosts..."; \
+		echo "$${HOSTS_ENTRY}" | sudo tee -a /etc/hosts > /dev/null; \
+	else \
+		echo "La entrada '$${HOSTS_ENTRY}' ya existe en /etc/hosts."; \
+	fi
+endef
+
+# Esperamos a que wordpress rellene su volumen para darle permiso a su contenido.
+define WAIT_FOR_WP_SCRIPT
+	@timeout=60; \
+	while [ ! -f $(WEBFILE_DIR)/wp-config.php ] && [ $$timeout -gt 0 ]; do \
+		sleep 1; \
+		timeout=$$((timeout-1)); \
+	done; \
+	if [ ! -f $(WEBFILE_DIR)/wp-config.php ]; then \
+		echo "Error: WordPress setup timed out."; \
+		exit 1; \
+	fi
+endef
