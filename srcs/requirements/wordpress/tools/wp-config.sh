@@ -7,7 +7,7 @@
 #	mysqladmin ping: comprueba si el servidor está disponible.
 #	-h"$WORDPRESS_DB_HOST": especifica el servidor.
 #	--silent: suprime la salida del comando en la terminal.
-until mysqladmin ping -h"$WORDPRESS_DB_HOST" --silent; do
+until mysqladmin ping -h"$WORDPRESS_DB_HOST" -u"$WORDPRESS_DB_USER" -p"$(cat "$WORDPRESS_DB_PASSWORD_FILE")" --silent; do
     echo "Waiting for database..."
     sleep 2
 done
