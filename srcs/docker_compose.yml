@@ -25,7 +25,7 @@ services:
 #	  MYSQL_PASSWORD_FILE: le indica al script de inicialización de MariaDB dónde encontrar la contraseña del usuario.
 #	  MYSQL_ROOT_PASSWORD_FILE: le indica dónde encontrar la contraseña del usuario root.
   mariadb:
-    build: ./srcs/requirements/mariadb
+    build: ./requirements/mariadb
     container_name: mariadb_service
     volumes:
       - ${DATA_PATH}/db_data:/var/lib/mysql
@@ -54,7 +54,7 @@ services:
 #	  Las credenciales root son solo necearias para la configuración inicial de MariaDB.
 # environment: Define variables para que WordPress se conecte a la base de datos, usando secretos para la contraseña.
   wordpress:
-    build: ./srcs/requirements/wordpress
+    build: ./requirements/wordpress
     container_name: wordpress_service
     depends_on:
       - mariadb
@@ -84,7 +84,7 @@ services:
 # restart: Configura el reinicio automático.
 #	  always: El contenedor se reiniciará siempre que se detenga. Para garantizar que este siempre disponible.
   nginx:
-    build: ./srcs/requirements/nginx
+    build: ./requirements/nginx
     container_name: nginx_service
     depends_on:
     - wordpress
