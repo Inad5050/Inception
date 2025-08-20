@@ -7,7 +7,7 @@
 #	mysqladmin ping: comprueba si el servidor está disponible.
 #	-h"$WORDPRESS_DB_HOST": especifica el servidor.
 #	--silent: suprime la salida del comando en la terminal.
-git
+
 for i in $(seq 1 60)
 do
   echo "waiting"
