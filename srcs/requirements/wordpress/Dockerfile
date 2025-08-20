@@ -1,22 +1,20 @@
-# Usa una imagen oficial de PHP-FPM con Debian Bullseye para asegurar compatibilidad.
 FROM php:8.2-fpm-bullseye
 
-# Instala las herramientas necesarias: cliente de MariaDB, wget y sudo.
 RUN apt-get update && \
     apt-get install -y mariadb-client wget sudo && \
+    echo "DEBUG: Paquetes de WordPress (cliente mariadb, wget) instalados." && \
     rm -rf /var/lib/apt/lists/*
 
-# Descarga e instala la herramienta WP-CLI.
 RUN wget https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar && \
     chmod +x wp-cli.phar && \
-    mv wp-cli.phar /usr/local/bin/wp
+    mv wp-cli.phar /usr/local/bin/wp && \
+    echo "DEBUG: WP-CLI instalado en /usr/local/bin/wp."
 
-# Establece el directorio de trabajo.
 WORKDIR /var/www/html
 
-# Copia y da permisos al script de entrada.
 COPY tools/entrypoint.sh /usr/local/bin/entrypoint.sh
-RUN chmod +x /usr/local/bin/entrypoint.sh
+RUN chmod +x /usr/local/bin/entrypoint.sh && \
+    echo "DEBUG: Script de entrada de WordPress copiado y con permisos."
 
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
 CMD ["php-fpm"]

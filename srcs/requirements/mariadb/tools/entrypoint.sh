@@ -1,41 +1,37 @@
 #!/bin/sh
+# 'set -x' imprime cada comando antes de ejecutarlo.
+# 'set -e' hace que el script falle si cualquier comando falla.
+set -xe
 
-# Comprueba si el volumen de datos ya está inicializado.
-# Estara iniciado si no es la primera vez que construimos los contenedores.
-# La existencia de la carpeta 'mysql', que contiene las tablas de sistema,
-# es el giveaway de si está iniciado.
-# mysql_install_db: inicializa el directorio de datos de MariaDB
-if [ ! -d "/var/lib/mysql/mysql" ]; then
-    echo "Directorio de MariaDB no encontrado. Inicializando base de datos..."
+echo "--- INICIANDO SCRIPT DE MARIADB ---"
+echo "DEBUG: Variables de entorno recibidas:"
+echo "MYSQL_DATABASE: ${MYSQL_DATABASE}"
+echo "MYSQL_USER: ${MYSQL_USER}"
+echo "-----------------------------------"
+
+if [ -d "/var/lib/mysql/$MYSQL_DATABASE" ]; then
+    echo "DEBUG: La base de datos '$MYSQL_DATABASE' ya existe. Omitiendo inicialización."
+else
+    echo "DEBUG: La base de datos no existe. Inicializando por primera vez..."
+
+    # Inicializa la estructura de directorios de MariaDB.
     mysql_install_db --user=mysql --datadir=/var/lib/mysql
-fi
+    echo "DEBUG: 'mysql_install_db' completado."
 
-# Inicia el servidor MariaDB en segundo plano para la configuración
-mysqld --user=mysql --bind-address=0.0.0.0 --skip-networking &
-pid="$!"
+    # Inicia el servidor en modo seguro para la configuración inicial.
+    mysqld --user=mysql --bootstrap << EOF
+USE mysql;
+FLUSH PRIVILEGES;
 
-# Espera a que el servidor esté listo para aceptar conexiones (NOTA: ver script de WordPress)
-until mysqladmin ping -h"localhost" --silent; do
-    echo "Esperando al servidor MariaDB temporal..."
-    sleep 2
-done
+ALTER USER 'root'@'localhost' IDENTIFIED BY '$(cat $MYSQL_ROOT_PASSWORD_FILE)';
+CREATE DATABASE IF NOT EXISTS \`$MYSQL_DATABASE\`;
+CREATE USER IF NOT EXISTS '$MYSQL_USER'@'%' IDENTIFIED BY '$(cat $MYSQL_PASSWORD_FILE)';
+GRANT ALL PRIVILEGES ON \`$MYSQL_DATABASE\`.* TO '$MYSQL_USER'@'%';
 
-# Ejecuta los comandos SQL para crear la base de datos y el usuario de WordPress
-# Se usa un "here document" (<< EOF) para pasar múltiples comandos a mysql.
-mysql -u root << EOF
-CREATE DATABASE IF NOT EXISTS \`${MYSQL_DATABASE}\`;
-CREATE USER IF NOT EXISTS '${MYSQL_USER}'@'%' IDENTIFIED BY '$(cat ${MYSQL_PASSWORD_FILE})';
-GRANT ALL PRIVILEGES ON \`${MYSQL_DATABASE}\`.* TO '${MYSQL_USER}'@'%';
 FLUSH PRIVILEGES;
 EOF
+    echo "DEBUG: Base de datos y usuarios creados."
+fi
 
-# Apaga el servidor temporal de forma segura
-mysqladmin -u root shutdown
-
-# Espera a que el proceso en segundo plano termine
-wait "$pid"
-
-echo "Configuración de MariaDB completada. Iniciando servidor principal..."
-
-# Ejecuta el comando principal del contenedor (lo que sea que esté en CMD)
+echo "--- FINALIZANDO SCRIPT DE MARIADB. Pasando control a mysqld ---"
 exec "$@"

@@ -1,19 +1,19 @@
-# Usa Debian Bullseye como base, una distribución estable y ligera.
+# Usa Debian Bullseye como base.
 FROM debian:bullseye-slim
 
-# Instala el servidor de MariaDB y procps para poder usar 'ps' si es necesario.
+# Instala el servidor de MariaDB.
 RUN apt-get update && \
     apt-get install -y mariadb-server && \
+    echo "DEBUG: Paquetes de MariaDB instalados." && \
     rm -rf /var/lib/apt/lists/*
 
-# Copia el script de entrada que configurará la base de datos.
+# Copia el script de entrada.
 COPY tools/entrypoint.sh /usr/local/bin/entrypoint.sh
-RUN chmod +x /usr/local/bin/entrypoint.sh
+RUN chmod +x /usr/local/bin/entrypoint.sh && \
+    echo "DEBUG: Script de entrada de MariaDB copiado y con permisos."
 
-# Expone el puerto estándar de MariaDB.
 EXPOSE 3306
 
-# Define el script de entrada y el comando por defecto.
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
 CMD ["mysqld", "--user=mysql"]
 

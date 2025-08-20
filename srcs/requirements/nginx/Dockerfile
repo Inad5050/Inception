@@ -1,26 +1,27 @@
 FROM debian:bullseye-slim
 
-# Instala Nginx y OpenSSL para generar el certificado.
 RUN apt-get update && \
     apt-get install -y nginx openssl && \
+    echo "DEBUG: Paquetes de Nginx y OpenSSL instalados." && \
     rm -rf /var/lib/apt/lists/*
 
-# Crea los directorios para el certificado SSL.
 RUN mkdir -p /etc/nginx/ssl
-
-# Genera un certificado SSL autofirmado.
 RUN openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
     -keyout /etc/nginx/ssl/inception.key \
     -out /etc/nginx/ssl/inception.crt \
-    -subj "/C=ES/ST=Bizkaia/L=Bilbao/O=42/CN=${DOMAIN_NAME}"
+    -subj "/C=ES/ST=Bizkaia/L=Bilbao/O=42/CN=${DOMAIN_NAME}" && \
+    echo "DEBUG: Certificado SSL generado."
 
-# Copia el archivo de configuración del sitio.
+# Copia tanto la configuración como el nuevo script de debug.
 COPY conf/default.conf /etc/nginx/conf.d/default.conf
+COPY tools/entrypoint.sh /usr/local/bin/entrypoint.sh
+RUN chmod +x /usr/local/bin/entrypoint.sh && \
+    echo "DEBUG: Configuración y script de entrada de Nginx copiados."
 
-# Expone el puerto 443 para HTTPS.
 EXPOSE 443
 
-# El comando para iniciar Nginx en primer plano.
+# El entrypoint se ejecutará primero, luego pasará el control al CMD.
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
 CMD ["nginx", "-g", "daemon off;"]
 
 # ----------

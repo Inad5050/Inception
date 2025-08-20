@@ -1,41 +1,40 @@
 #!/bin/sh
+set -xe
 
-# 'set -e' hace que el script falle inmediatamente si un comando devuelve un error.
-# Esto evita fallos silenciosos y facilita la depuración.
-set -e
+echo "--- INICIANDO SCRIPT DE WORDPRESS ---"
+echo "DEBUG: Variables de entorno recibidas:"
+echo "WORDPRESS_DB_NAME: ${WORDPRESS_DB_NAME}"
+echo "WORDPRESS_DB_USER: ${WORDPRESS_DB_USER}"
+echo "WORDPRESS_DB_HOST: ${WORDPRESS_DB_HOST}"
+echo "DOMAIN_NAME: ${DOMAIN_NAME}"
+echo "-------------------------------------"
+echo "DEBUG: Esperando a MariaDB en el host '${WORDPRESS_DB_HOST}'..."
 
-# --- 1. Espera a que MariaDB esté listo ---
-echo "Esperando a que la base de datos MariaDB esté disponible..."
-# Este bucle utiliza 'mysqladmin ping' para comprobar activamente la conexión.
-# El script no continuará hasta que la base de datos responda.
-# -h es el host (el nombre del servicio de MariaDB).
-# -u y -p son el usuario y la contraseña (no necesarios para un 'ping' básico
-# si la configuración de red lo permite, pero es buena práctica incluirlos).
-# '--silent' evita que se imprima la salida del comando.
-until mysqladmin ping -h"$WORDPRESS_DB_HOST" --silent; do
-    echo "MariaDB no está listo todavía. Esperando..."
+# Bucle de espera activo.
+until mysqladmin ping -h"mariadb" --silent; do
+    echo "DEBUG: MariaDB no responde, reintentando en 2 segundos..."
     sleep 2
 done
-echo "La base de datos MariaDB está lista."
+echo "DEBUG: Conexión con MariaDB establecida."
 
-# --- 2. Comprueba si WordPress ya está instalado ---
-# Esto evita que el script intente reinstalar WordPress cada vez que el contenedor se reinicia,
-# lo que corrompería la base de datos y los archivos.
-if [ ! -f "wp-config.php" ]; then
-    echo "WordPress no está instalado. Iniciando instalación..."
+echo "DEBUG: Verificando estado del volumen en /var/www/html..."
+ls -la /var/www/html
 
-    # --- 3. Crea el archivo de configuración wp-config.php ---
-    # Este comando se conecta a la base de datos para verificar las credenciales.
+if [ ! -f "/var/www/html/wp-config.php" ]; then
+    echo "DEBUG: 'wp-config.php' no encontrado. Iniciando instalación de WordPress..."
+
+    wp core download --allow-root
+    echo "DEBUG: Archivos de WordPress descargados. Estado del directorio:"
+    ls -la /var/www/html
+
     wp config create \
         --dbname="$WORDPRESS_DB_NAME" \
-        --dbuser="$MYSQL_USER" \
-        --dbpass="$(cat "$MYSQL_PASSWORD_FILE")" \
+        --dbuser="$WORDPRESS_DB_USER" \
+        --dbpass="$(cat "$WORDPRESS_DB_PASSWORD_FILE")" \
         --dbhost="$WORDPRESS_DB_HOST" \
         --allow-root
+    echo "DEBUG: 'wp-config.php' creado."
 
-    # --- 4. Instala WordPress ---
-    # Esto crea las tablas en la base de datos y configura el sitio.
-    # El usuario administrador 'wp_admin' cumple la norma de no usar 'admin'[cite: 107].
     wp core install \
         --url="$DOMAIN_NAME" \
         --title="Inception" \
@@ -43,21 +42,18 @@ if [ ! -f "wp-config.php" ]; then
         --admin_password="wp_admin_pass" \
         --admin_email="admin@example.com" \
         --allow-root
+    echo "DEBUG: 'wp core install' completado."
 
-    # Crea un segundo usuario, como se requiere en el subject.
     wp user create editor_user editor@example.com --role=editor --user_pass=editor_pass --allow-root
-
-    echo "Instalación de WordPress completada."
+    echo "DEBUG: Usuario adicional 'editor_user' creado."
+else
+    echo "DEBUG: 'wp-config.php' encontrado. Omitiendo instalación."
 fi
 
-# --- 5. Asegura los permisos correctos ---
-# WP-CLI, al ejecutarse como root, puede crear archivos propiedad de root.
-# Cambiamos el propietario al usuario 'www-data' para que el servidor web pueda
-# gestionar los archivos (ej. subir imágenes, instalar plugins).
+echo "DEBUG: Asegurando que 'www-data' sea el propietario de /var/www/html..."
 chown -R www-data:www-data /var/www/html
+echo "DEBUG: Permisos finales en /var/www/html:"
+ls -la /var/www/html
 
-echo "Servidor listo. Iniciando PHP-FPM..."
-# --- 6. Pasa el control al comando principal del contenedor (CMD) ---
-# 'exec "$@"' reemplaza este script por el proceso de PHP-FPM,
-# convirtiéndolo en el proceso principal (PID 1) del contenedor[cite: 105].
+echo "--- FINALIZANDO SCRIPT DE WORDPRESS. Pasando control a php-fpm ---"
 exec "$@"
