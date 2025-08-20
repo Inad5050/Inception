@@ -1,7 +1,7 @@
 # Makefile simplificado para gestionar el ciclo de vida del proyecto
 
 # --- Variables ---
-DOCKER_COMPOSE_FILE = srcs/docker-compose.yml
+DOCKER_COMPOSE_FILE = ./srcs/docker-compose.yml
 VOLUME_DIR = /home/dangonz3/data
 DB_DATA_DIR = $(VOLUME_DIR)/db_data
 WP_DATA_DIR = $(VOLUME_DIR)/wp_data
