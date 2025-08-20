@@ -1,39 +1,30 @@
 #!/bin/sh
-set -xe
+set -e
 
-echo "--- INICIANDO SCRIPT DE WORDPRESS ---"
-echo "DEBUG: Variables de entorno recibidas:"
-echo "WORDPRESS_DB_NAME: ${WORDPRESS_DB_NAME}"
-echo "WORDPRESS_DB_USER: ${WORDPRESS_DB_USER}"
-echo "WORDPRESS_DB_HOST: ${WORDPRESS_DB_HOST}"
-echo "DOMAIN_NAME: ${DOMAIN_NAME}"
-echo "-------------------------------------"
-echo "DEBUG: Esperando a MariaDB en el host '${WORDPRESS_DB_HOST}'..."
+# Pausa inicial para dar tiempo a los servicios a estabilizarse.
+echo "Pausa de 5 segundos para estabilizar la red..."
+sleep 5
 
-# Bucle de espera activo.
-until mysqladmin ping -h"mariadb" --silent; do
-    echo "DEBUG: MariaDB no responde, reintentando en 2 segundos..."
-    sleep 2
+# Espera activa hasta que el puerto de MariaDB esté abierto.
+echo "Esperando a que el puerto de MariaDB esté abierto..."
+while ! nc -z mariadb 3306; do
+    echo "El puerto de MariaDB no responde. Reintentando en 1 segundo..."
+    sleep 1
 done
-echo "DEBUG: Conexión con MariaDB establecida."
+echo "El puerto de MariaDB está abierto. Conexión posible."
 
-echo "DEBUG: Verificando estado del volumen en /var/www/html..."
-ls -la /var/www/html
-
+# Si no hay una instalación de WordPress, la realiza.
 if [ ! -f "/var/www/html/wp-config.php" ]; then
-    echo "DEBUG: 'wp-config.php' no encontrado. Iniciando instalación de WordPress..."
+    echo "'wp-config.php' no encontrado. Iniciando instalación..."
 
     wp core download --allow-root
-    echo "DEBUG: Archivos de WordPress descargados. Estado del directorio:"
-    ls -la /var/www/html
-
+    
     wp config create \
         --dbname="$WORDPRESS_DB_NAME" \
         --dbuser="$WORDPRESS_DB_USER" \
         --dbpass="$(cat "$WORDPRESS_DB_PASSWORD_FILE")" \
         --dbhost="$WORDPRESS_DB_HOST" \
         --allow-root
-    echo "DEBUG: 'wp-config.php' creado."
 
     wp core install \
         --url="$DOMAIN_NAME" \
@@ -42,18 +33,14 @@ if [ ! -f "/var/www/html/wp-config.php" ]; then
         --admin_password="wp_admin_pass" \
         --admin_email="admin@example.com" \
         --allow-root
-    echo "DEBUG: 'wp core install' completado."
 
-    wp user create editor_user editor@example.com --role=editor --user_pass=editor_pass --allow-root
-    echo "DEBUG: Usuario adicional 'editor_user' creado."
+    wp user create editor_user editor@example.com --role=editor --user_pass="editor_pass" --allow-root
 else
-    echo "DEBUG: 'wp-config.php' encontrado. Omitiendo instalación."
+    echo "'wp-config.php' encontrado. Omitiendo instalación."
 fi
 
-echo "DEBUG: Asegurando que 'www-data' sea el propietario de /var/www/html..."
+# Asegura que el usuario de PHP-FPM sea el propietario de los archivos.
 chown -R www-data:www-data /var/www/html
-echo "DEBUG: Permisos finales en /var/www/html:"
-ls -la /var/www/html
 
-echo "--- FINALIZANDO SCRIPT DE WORDPRESS. Pasando control a php-fpm ---"
+echo "Iniciando PHP-FPM..."
 exec "$@"

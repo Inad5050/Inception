@@ -2,6 +2,8 @@
 
 # --- Variables ---
 DOCKER_COMPOSE_FILE = srcs/docker-compose.yml
+# Asegúrate de que esta variable coincida con el DOMAIN_NAME en tu srcs/.env
+DOMAIN_NAME = dangonz3.42.fr
 VOLUME_DIR = /home/dangonz3/data
 DB_DATA_DIR = $(VOLUME_DIR)/db_data
 WP_DATA_DIR = $(VOLUME_DIR)/wp_data
