@@ -1,14 +1,17 @@
 #!/bin/sh
-set -xe
+set -e
 
-echo "--- INICIANDO SCRIPT DE NGINX (DEBUG) ---"
-echo "DEBUG: Verificando permisos en /var/www/html desde la perspectiva de Nginx..."
-echo "DEBUG: UID/GID actual: $(id)"
-ls -la /var/www/html
+# Comprueba si el certificado SSL ya existe.
+if [ ! -f /etc/nginx/ssl/inception.crt ]; then
+    echo "Generando certificado SSL por primera vez..."
+    # Crea el directorio si no existe.
+    mkdir -p /etc/nginx/ssl
+    # Genera el certificado usando la variable de entorno DOMAIN_NAME.
+    openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
+        -keyout /etc/nginx/ssl/inception.key \
+        -out /etc/nginx/ssl/inception.crt \
+        -subj "/C=ES/ST=Bizkaia/L=Bilbao/O=42/CN=${DOMAIN_NAME}"
+fi
 
-echo "DEBUG: Mostrando contenido de la configuración de Nginx:"
-cat /etc/nginx/conf.d/default.conf
-echo "------------------------------------------"
-
-echo "--- FINALIZANDO SCRIPT DE NGINX. Pasando control a Nginx ---"
+# Pasa el control al comando principal (CMD), que es 'nginx'.
 exec "$@"
