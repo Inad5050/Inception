@@ -1,19 +1,10 @@
 #!/bin/sh
 set -e
 
-# Pausa inicial para dar tiempo a los servicios a estabilizarse.
-echo "Pausa de 5 segundos para estabilizar la red..."
-sleep 5
+# La lógica de espera manual ha sido eliminada.
+# Docker no ejecutará este script hasta que MariaDB esté 'healthy'.
+echo "MariaDB está listo. Iniciando configuración de WordPress..."
 
-# Espera activa hasta que el puerto de MariaDB esté abierto.
-echo "Esperando a que el puerto de MariaDB esté abierto..."
-while ! nc -z mariadb 3306; do
-    echo "El puerto de MariaDB no responde. Reintentando en 1 segundo..."
-    sleep 1
-done
-echo "El puerto de MariaDB está abierto. Conexión posible."
-
-# Si no hay una instalación de WordPress, la realiza.
 if [ ! -f "/var/www/html/wp-config.php" ]; then
     echo "'wp-config.php' no encontrado. Iniciando instalación..."
 
@@ -39,7 +30,6 @@ else
     echo "'wp-config.php' encontrado. Omitiendo instalación."
 fi
 
-# Asegura que el usuario de PHP-FPM sea el propietario de los archivos.
 chown -R www-data:www-data /var/www/html
 
 echo "Iniciando PHP-FPM..."
