@@ -1,8 +1,9 @@
 FROM php:8.2-fpm-bullseye
 
+# Se añade 'netcat' para la comprobación de red en el script de entrada.
 RUN apt-get update && \
-    apt-get install -y mariadb-client wget sudo && \
-    echo "DEBUG: Paquetes de WordPress (cliente mariadb, wget) instalados." && \
+    apt-get install -y mariadb-client wget sudo netcat && \
+    echo "DEBUG: Paquetes de WordPress (cliente mariadb, wget, sudo, netcat) instalados." && \
     rm -rf /var/lib/apt/lists/*
 
 RUN wget https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar && \
