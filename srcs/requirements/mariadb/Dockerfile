@@ -1,3 +1,56 @@
+#!/bin/sh
+
+# 'set -e' asegura que el script falle si cualquier comando falla.
+set -e
+
+# Comprueba si la base de datos ya está inicializada mirando si existe el directorio 'mysql'.
+if [ -d "/var/lib/mysql/mysql" ]; then
+    echo "La base de datos MariaDB ya existe. Omitiendo inicialización."
+else
+    echo "Inicializando la base de datos MariaDB por primera vez..."
+
+    # Inicializa la estructura de directorios de MariaDB.
+    mysql_install_db --user=mysql --datadir=/var/lib/mysql
+
+    # Inicia el servidor en modo seguro para la configuración inicial.
+    mysqld --user=mysql --bootstrap << EOF
+USE mysql;
+FLUSH PRIVILEGES;
+ALTER USER 'root'@'localhost' IDENTIFIED BY '$(cat $MYSQL_ROOT_PASSWORD_FILE)';
+CREATE DATABASE IF NOT EXISTS \`$MYSQL_DATABASE\`;
+CREATE USER IF NOT EXISTS '$MYSQL_USER'@'%' IDENTIFIED BY '$(cat $MYSQL_PASSWORD_FILE)';
+GRANT ALL PRIVILEGES ON \`$MYSQL_DATABASE\`.* TO '$MYSQL_USER'@'%';
+FLUSH PRIVILEGES;
+EOF
+    echo "Base de datos inicializada y configurada."
+fi
+
+# Pasa el control al comando principal (CMD), que es 'mysqld'.
+exec "$@"
+
+# ----------
+
+# Usa Debian Bullseye como base, una distribución estable y ligera.
+# FROM debian:bullseye-slim
+
+# # Instala el servidor de MariaDB y procps para poder usar 'ps' si es necesario.
+# RUN apt-get update && \
+#     apt-get install -y mariadb-server && \
+#     rm -rf /var/lib/apt/lists/*
+
+# # Copia el script de entrada que configurará la base de datos.
+# COPY tools/entrypoint.sh /usr/local/bin/entrypoint.sh
+# RUN chmod +x /usr/local/bin/entrypoint.sh
+
+# # Expone el puerto estándar de MariaDB.
+# EXPOSE 3306
+
+# # Define el script de entrada y el comando por defecto.
+# ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
+# CMD ["mysqld", "--user=mysql"]
+
+# ----------
+
 # FROM Utiliza la imagen oficial de Debian bullseye slim como base.
 # RUN (1) Instala el servidor de MariaDB y su cliente.
 #	server: el motor de la base de datos, gestiona los datos y ejecuta las consultas.
@@ -28,16 +81,16 @@
 # --bind-address=0.0.0.0
 #	MariaDB escuchara en todas las interfaces de red dentro del contenedor, no solo en localhost.
 
-FROM debian:bullseye-slim
-RUN apt update && \ 
-    apt install -y mariadb-server mariadb-client && \ 
-	mkdir -p /run/mysqld && \ 
-    chown -R mysql:mysql /run/mysqld
-COPY ./tools/entrypoint.sh /usr/local/bin/entrypoint.sh
-RUN chmod +x /usr/local/bin/entrypoint.sh
-EXPOSE 3306
-ENTRYPOINT ["entrypoint.sh"]
-CMD ["mysqld", "--user=mysql", "--bind-address=0.0.0.0"]
+# FROM debian:bullseye-slim
+# RUN apt update && \ 
+#     apt install -y mariadb-server mariadb-client && \ 
+# 	mkdir -p /run/mysqld && \ 
+#     chown -R mysql:mysql /run/mysqld
+# COPY ./tools/entrypoint.sh /usr/local/bin/entrypoint.sh
+# RUN chmod +x /usr/local/bin/entrypoint.sh
+# EXPOSE 3306
+# ENTRYPOINT ["entrypoint.sh"]
+# CMD ["mysqld", "--user=mysql", "--bind-address=0.0.0.0"]
 
 # --- NOTAS ---
 

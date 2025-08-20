@@ -1,3 +1,70 @@
+# Usa una imagen oficial de PHP-FPM con Debian Bullseye para asegurar compatibilidad.
+FROM php:8.2-fpm-bullseye
+
+# Instala las herramientas necesarias: cliente de MariaDB, wget y sudo.
+RUN apt-get update && \
+    apt-get install -y mariadb-client wget sudo && \
+    rm -rf /var/lib/apt/lists/*
+
+# Descarga e instala la herramienta WP-CLI.
+RUN wget https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar && \
+    chmod +x wp-cli.phar && \
+    mv wp-cli.phar /usr/local/bin/wp
+
+# Establece el directorio de trabajo.
+WORKDIR /var/www/html
+
+# Copia y da permisos al script de entrada.
+COPY tools/entrypoint.sh /usr/local/bin/entrypoint.sh
+RUN chmod +x /usr/local/bin/entrypoint.sh
+
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
+CMD ["php-fpm"]
+
+# ----------
+
+# # Usa la imagen base de Alpine con PHP 8.2-FPM [cite: 79]
+# FROM php:8.2-fpm-alpine
+
+# # Instala dependencias necesarias para WordPress y para nuestro script
+# # mariadb-client nos da la herramienta 'mysqladmin' para comprobar la conexión a la BD
+# RUN apk update && apk add --no-cache \
+#     wget \
+#     mariadb-client \
+#     php82-mysqli \
+#     php82-gd \
+#     php82-curl \
+#     php82-zip \
+#     php82-mbstring
+
+# # Copia e instala la herramienta WP-CLI para gestionar WordPress por comandos
+# COPY ./tools/wp-cli.phar /usr/local/bin/wp
+# RUN chmod +x /usr/local/bin/wp
+
+# # Establece el directorio de trabajo donde Nginx servirá los archivos
+# WORKDIR /var/www/html
+
+# # Descarga el código fuente de WordPress, lo descomprime y limpia el archivo .tar.gz
+# RUN wget https://wordpress.org/wordpress-6.4.3.tar.gz && \
+#     tar -xzf wordpress-6.4.3.tar.gz --strip-components=1 && \
+#     rm wordpress-6.4.3.tar.gz
+
+# # Copia el nuevo script de entrada al contenedor
+# COPY ./tools/entrypoint.sh /usr/local/bin/entrypoint.sh
+# RUN chmod +x /usr/local/bin/entrypoint.sh
+
+# # Expone el puerto por el que PHP-FPM se comunicará con Nginx [cite: 127]
+# EXPOSE 9000
+
+# # Define el script de entrada que se ejecutará al iniciar el contenedor
+# ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
+
+# # Define el comando por defecto que el script de entrada ejecutará al final
+# # Inicia PHP-FPM en primer plano para mantener el contenedor activo [cite: 95]
+# CMD ["php-fpm", "-F"]
+
+# --------------------------------------
+
 # FROM Utiliza una imagen base con PHP 8.2 y FPM sobre Alpine para un menor tamaño.
 # RUN (1) Instala las extensiones de PHP necesarias para WordPress (MySQL, GD, etc.) y herramientas:
 #	wget: permite descargar archivos de la web (wget https://wordpress.org/latest.tar.gz)
@@ -28,29 +95,29 @@
 # EXPOSE Expone el puerto 9000 para la comunicación con Nginx (PHP-FPM).
 #	Solo indica que puerto quiere usar el contenedor, los puertos se abren en el docker-compose.yml
 
-FROM php:8.2-fpm-alpine
-RUN apk update && apk add --no-cache \ 
-    wget \ 
-    mariadb-client \ 
-    php82-fpm \ 
-    php82-mysqli \ 
-    php82-gd \ 
-    php82-curl \ 
-    php82-zip \ 
-    php82-mbstring
-COPY ./tools/wp-cli.phar /usr/local/bin/wp
-RUN chmod +x /usr/local/bin/wp
-RUN mkdir -p /var/www/html
-WORKDIR /var/www/html
-RUN wget https://wordpress.org/wordpress-6.4.3.tar.gz && \
-    tar -xzf wordpress-6.4.3.tar.gz --strip-components=1 && \
-    rm wordpress-6.4.3.tar.gz && \
-    chown -R www-data:www-data /var/www/html
-COPY ./tools/wp-config.sh /usr/local/bin/
-RUN chmod +x /usr/local/bin/wp-config.sh
-EXPOSE 9000
-ENTRYPOINT ["/usr/local/bin/wp-config.sh"]
-CMD ["php-fpm82", "-F"]
+# FROM php:8.2-fpm-alpine
+# RUN apk update && apk add --no-cache \ 
+#     wget \ 
+#     mariadb-client \ 
+#     php82-fpm \ 
+#     php82-mysqli \ 
+#     php82-gd \ 
+#     php82-curl \ 
+#     php82-zip \ 
+#     php82-mbstring
+# COPY ./tools/wp-cli.phar /usr/local/bin/wp
+# RUN chmod +x /usr/local/bin/wp
+# RUN mkdir -p /var/www/html
+# WORKDIR /var/www/html
+# RUN wget https://wordpress.org/wordpress-6.4.3.tar.gz && \
+#     tar -xzf wordpress-6.4.3.tar.gz --strip-components=1 && \
+#     rm wordpress-6.4.3.tar.gz && \
+#     chown -R www-data:www-data /var/www/html
+# COPY ./tools/wp-config.sh /usr/local/bin/
+# RUN chmod +x /usr/local/bin/wp-config.sh
+# EXPOSE 9000
+# ENTRYPOINT ["/usr/local/bin/wp-config.sh"]
+# CMD ["php-fpm82", "-F"]
 
 # ENTRYPOINT Punto de entrada para la configuración inicial. Ejecuta un script de shell
 # CMD Comando por defecto para iniciar PHP-FPM en primer plano.
