@@ -16,6 +16,16 @@ all: create_dirs
 	@echo "$(COLOR_GREEN)------------ Contenedores iniciados ------------$(COLOR_RESET)"
 	@docker ps
 
+status:
+	docker ps
+	docker networks ls
+	docker volumes ls
+
+git:
+	git add .
+	git commit -m "fastCommit"
+	git push
+	
 # Detiene y elimina los contenedores y redes creados por Compose.
 clean:
 	@docker-compose -f $(DOCKER_COMPOSE_FILE) down
