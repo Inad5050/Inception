@@ -5,6 +5,14 @@ FROM debian:bullseye-slim
 RUN apt-get update && \
     apt-get install -y mariadb-server && \
     echo "DEBUG: Paquetes de MariaDB instalados." && \
+    \
+    # --- CORRECCIÓN ---
+    # Crea el directorio que mysqld necesita para su archivo socket.
+    mkdir -p /run/mysqld && \
+    # Asigna la propiedad del directorio al usuario 'mysql' para que el proceso pueda escribir en él.
+    chown -R mysql:mysql /run/mysqld && \
+    # ------------------
+    \
     rm -rf /var/lib/apt/lists/*
 
 # Copia el script de entrada que configurará la base de datos.
@@ -17,9 +25,6 @@ EXPOSE 3306
 
 # Define el script de entrada y el comando por defecto.
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
-
-# CORRECCIÓN: Se añade --bind-address=0.0.0.0 para que el servidor acepte
-# conexiones desde otros contenedores en la red, no solo desde localhost.
 CMD ["mysqld", "--user=mysql", "--bind-address=0.0.0.0"]
 
 # ----------
