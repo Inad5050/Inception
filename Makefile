@@ -18,14 +18,14 @@ all: create_dirs
 
 status:
 	docker ps
-	docker networks ls
-	docker volumes ls
+	docker network ls
+	docker volume ls
 
-git:
+push:
 	git add .
 	git commit -m "fastCommit"
 	git push
-	
+
 # Detiene y elimina los contenedores y redes creados por Compose.
 clean:
 	@docker-compose -f $(DOCKER_COMPOSE_FILE) down
