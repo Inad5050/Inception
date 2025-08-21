@@ -1,3 +1,19 @@
+FROM debian:bullseye-slim
+
+RUN apt-get update && \
+    apt-get install -y mariadb-server mariadb-client && \
+    mkdir -p /run/mysqld && \
+    chown -R mysql:mysql /run/mysqld && \
+    rm -rf /var/lib/apt/lists/*
+
+COPY tools/entrypoint.sh /usr/local/bin/entrypoint.sh
+RUN chmod +x /usr/local/bin/entrypoint.sh
+
+EXPOSE 3306
+
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
+CMD ["mysqld", "--user=mysql", "--bind-address=0.0.0.0"]
+
 # FROM Utiliza la imagen oficial de Debian bullseye slim como base.
 # RUN (1) Instala el servidor de MariaDB y su cliente.
 #	server: el motor de la base de datos, gestiona los datos y ejecuta las consultas.
@@ -28,16 +44,16 @@
 # --bind-address=0.0.0.0
 #	MariaDB escuchara en todas las interfaces de red dentro del contenedor, no solo en localhost.
 
-FROM debian:bullseye-slim
-RUN apt update && \ 
-    apt install -y mariadb-server mariadb-client && \ 
-	mkdir -p /run/mysqld && \ 
-    chown -R mysql:mysql /run/mysqld
-COPY ./tools/entrypoint.sh /usr/local/bin/entrypoint.sh
-RUN chmod +x /usr/local/bin/entrypoint.sh
-EXPOSE 3306
-ENTRYPOINT ["entrypoint.sh"]
-CMD ["mysqld", "--user=mysql", "--bind-address=0.0.0.0"]
+# FROM debian:bullseye-slim
+# RUN apt update && \ 
+#     apt install -y mariadb-server mariadb-client && \ 
+# 	mkdir -p /run/mysqld && \ 
+#     chown -R mysql:mysql /run/mysqld
+# COPY ./tools/entrypoint.sh /usr/local/bin/entrypoint.sh
+# RUN chmod +x /usr/local/bin/entrypoint.sh
+# EXPOSE 3306
+# ENTRYPOINT ["entrypoint.sh"]
+# CMD ["mysqld", "--user=mysql", "--bind-address=0.0.0.0"]
 
 # --- NOTAS ---
 

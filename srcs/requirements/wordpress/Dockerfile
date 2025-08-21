@@ -1,3 +1,27 @@
+FROM php:8.2-fpm-bullseye
+
+RUN apt-get update && \
+    apt-get install -y mariadb-client wget sudo netcat && \
+    rm -rf /var/lib/apt/lists/*
+
+# Instala la extensión de PHP para conectar con MariaDB.
+RUN docker-php-ext-install mysqli
+
+RUN wget https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar && \
+    chmod +x wp-cli.phar && \
+    mv wp-cli.phar /usr/local/bin/wp
+
+# Copia la configuración de PHP para aumentar el límite de memoria.
+COPY conf/custom.ini /usr/local/etc/php/conf.d/custom.ini
+
+WORKDIR /var/www/html
+
+COPY tools/entrypoint.sh /usr/local/bin/entrypoint.sh
+RUN chmod +x /usr/local/bin/entrypoint.sh
+
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
+CMD ["php-fpm"]
+
 # FROM Utiliza una imagen base con PHP 8.2 y FPM sobre Alpine para un menor tamaño.
 # RUN (1) Instala las extensiones de PHP necesarias para WordPress (MySQL, GD, etc.) y herramientas:
 #	wget: permite descargar archivos de la web (wget https://wordpress.org/latest.tar.gz)
@@ -28,29 +52,29 @@
 # EXPOSE Expone el puerto 9000 para la comunicación con Nginx (PHP-FPM).
 #	Solo indica que puerto quiere usar el contenedor, los puertos se abren en el docker-compose.yml
 
-FROM php:8.2-fpm-alpine
-RUN apk update && apk add --no-cache \ 
-    wget \ 
-    mariadb-client \ 
-    php82-fpm \ 
-    php82-mysqli \ 
-    php82-gd \ 
-    php82-curl \ 
-    php82-zip \ 
-    php82-mbstring
-COPY ./tools/wp-cli.phar /usr/local/bin/wp
-RUN chmod +x /usr/local/bin/wp
-RUN mkdir -p /var/www/html
-WORKDIR /var/www/html
-RUN wget https://wordpress.org/wordpress-6.4.3.tar.gz && \
-    tar -xzf wordpress-6.4.3.tar.gz --strip-components=1 && \
-    rm wordpress-6.4.3.tar.gz && \
-    chown -R www-data:www-data /var/www/html
-COPY ./tools/wp-config.sh /usr/local/bin/
-RUN chmod +x /usr/local/bin/wp-config.sh
-EXPOSE 9000
-ENTRYPOINT ["/usr/local/bin/wp-config.sh"]
-CMD ["php-fpm82", "-F"]
+# FROM php:8.2-fpm-alpine
+# RUN apk update && apk add --no-cache \ 
+#     wget \ 
+#     mariadb-client \ 
+#     php82-fpm \ 
+#     php82-mysqli \ 
+#     php82-gd \ 
+#     php82-curl \ 
+#     php82-zip \ 
+#     php82-mbstring
+# COPY ./tools/wp-cli.phar /usr/local/bin/wp
+# RUN chmod +x /usr/local/bin/wp
+# RUN mkdir -p /var/www/html
+# WORKDIR /var/www/html
+# RUN wget https://wordpress.org/wordpress-6.4.3.tar.gz && \
+#     tar -xzf wordpress-6.4.3.tar.gz --strip-components=1 && \
+#     rm wordpress-6.4.3.tar.gz && \
+#     chown -R www-data:www-data /var/www/html
+# COPY ./tools/wp-config.sh /usr/local/bin/
+# RUN chmod +x /usr/local/bin/wp-config.sh
+# EXPOSE 9000
+# ENTRYPOINT ["/usr/local/bin/wp-config.sh"]
+# CMD ["php-fpm82", "-F"]
 
 # ENTRYPOINT Punto de entrada para la configuración inicial. Ejecuta un script de shell
 # CMD Comando por defecto para iniciar PHP-FPM en primer plano.

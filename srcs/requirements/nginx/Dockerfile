@@ -1,3 +1,18 @@
+FROM debian:bullseye-slim
+
+RUN apt-get update && \
+    apt-get install -y nginx openssl && \
+    rm -rf /var/lib/apt/lists/*
+
+COPY conf/default.conf /etc/nginx/conf.d/default.conf
+COPY tools/entrypoint.sh /usr/local/bin/entrypoint.sh
+RUN chmod +x /usr/local/bin/entrypoint.sh
+
+EXPOSE 443
+
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
+CMD ["nginx", "-g", "daemon off;"]
+
 # FROM Utiliza la imagen base oficial de Debian bullseye en su versión "slim" para reducir el tamaño.
 # RUN (1) actualiza los repositorios e instala NGINX.
 #	Actualiza la lista de paquetes disponibles en los repositorios (servidores remotos que contiene software) de Debian.
@@ -16,20 +31,20 @@
 # 	El directorio /etc/nginx/conf.d/ está diseñado para albergar archivos de configuración suplementarios,
 #	El archivo nginx.conf principal de NGINX (en la imagen base) contiene una directiva include /etc/nginx/conf.d/*.conf;.
 
-FROM debian:bullseye-slim
-RUN apt update \                 
-&& apt install --no-install-recommends --no-install-suggests -y nginx \ 
-&& ln -sf /dev/stdout /var/log/nginx/access.log \ 
-&& ln -sf /dev/stderr /var/log/nginx/error.log \ 
-&& apt install -y openssl \ 
-&& mkdir -p /etc/ssl/private/
-RUN openssl req -x509 -nodes -days 365 -newkey rsa:2048 \ 
--keyout /etc/ssl/private/nginx-selfsigned.key \ 
--out /etc/ssl/certs/nginx-selfsigned.crt \ 
--subj "/C=ES/ST=Bizkaia/L=Bilbao/O=42/OU=student/CN=dangonz3.42.fr"
-STOPSIGNAL SIGQUIT
-COPY ./conf/default.conf /etc/nginx/conf.d
-CMD ["nginx", "-g", "daemon off;"]
+# FROM debian:bullseye-slim
+# RUN apt update \                 
+# && apt install --no-install-recommends --no-install-suggests -y nginx \ 
+# && ln -sf /dev/stdout /var/log/nginx/access.log \ 
+# && ln -sf /dev/stderr /var/log/nginx/error.log \ 
+# && apt install -y openssl \ 
+# && mkdir -p /etc/ssl/private/
+# RUN openssl req -x509 -nodes -days 365 -newkey rsa:2048 \ 
+# -keyout /etc/ssl/private/nginx-selfsigned.key \ 
+# -out /etc/ssl/certs/nginx-selfsigned.crt \ 
+# -subj "/C=ES/ST=Bizkaia/L=Bilbao/O=42/OU=student/CN=dangonz3.42.fr"
+# STOPSIGNAL SIGQUIT
+# COPY ./conf/default.conf /etc/nginx/conf.d
+# CMD ["nginx", "-g", "daemon off;"]
 
 # CMD define el proceso principal que el contenedor debe ejecutar al arrancar.
 #	El ejecutable nginx está diseñado para daemonizarse. Al ejecutar nginx, el proceso principal 
