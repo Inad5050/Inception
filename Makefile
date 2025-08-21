@@ -53,7 +53,8 @@ check:
 	@git pull && \
 	$(MAKE) fclean && \
 	sudo $(MAKE) all && \
-	echo "$(COLOR_GREEN)✅ Despliegue completado. Mostrando logs...$(COLOR_RESET)" && \
-	docker logs mariadb && \
-	docker logs wordpress && \
-	docker logs nginx
+	echo "$(COLOR_GREEN)✅ Despliegue completado. Mostrando logs...$(COLOR_RESET)" ; \
+	docker logs mariadb ; \
+	docker logs wordpress ; \
+	docker logs nginx && \
+	curl -k https://dangonz3.42.fr
