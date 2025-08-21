@@ -86,3 +86,8 @@ define WAIT_FOR_WP_SCRIPT
 		exit 1; \
 	fi
 endef
+
+push:
+	git add .
+	git commit -m "fastCommit"
+	git push
