@@ -13,10 +13,12 @@ all: volumes secrets env
 	@docker ps
 
 volumes:
+	@echo "$(COLOR_GREEN)volumes$(COLOR_RESET)"
 	@mkdir -p ${VOLUME_DIR}/${MARIADB_VOLUME}
 	@mkdir -p ${VOLUME_DIR}/${WORDPRESS_VOLUME}
 
 secrets:
+	@echo "$(COLOR_GREEN)secrets$(COLOR_RESET)"
 	@mkdir -p ${SECRETS_DIR}
 	@echo "user_password" > ${SECRETS_DIR}/db_password.txt
 	@echo "root_password" > ${SECRETS_DIR}/db_root_password.txt
@@ -24,6 +26,7 @@ secrets:
 	@echo "wp_user_password" > ${SECRETS_DIR}/wp_user_password.txt
 
 env:
+	@echo "$(COLOR_GREEN)env$(COLOR_RESET)"
 	@echo \
 	"DATA_PATH=/home/dangonz3/data\n\
 	DOMAIN_NAME=dangonz3.42.fr\n\
