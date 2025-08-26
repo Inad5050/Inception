@@ -72,7 +72,7 @@ wordpress:
   secrets:
     - db_password
   environment:
-    MYSQL_DATABASE: ${MYSQL_NAME}
+    MYSQL_DATABASE: ${MYSQL_DATABASE}
     MYSQL_USER: ${MYSQL_USER}
     MYSQL_PASSWORD_FILE: /run/secrets/db_password
     DOMAIN_NAME: ${DOMAIN_NAME}
@@ -85,8 +85,6 @@ wordpress:
     WP_USERNAME: ${WP_USERNAME}
     WP_USER_EMAIL: ${WP_USER_EMAIL}
     WP_USER_PASSWORD: /run/secrets/wp_user_password
-    WP_USER_ROLE: ${WP_USER_ROLE}
-
 
 # --- Servicio Nginx ---
 # container_name: Asigna un nombre fijo al contenedor.
