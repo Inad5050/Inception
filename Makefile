@@ -33,7 +33,7 @@ env:
 	WP_ADMIN_EMAIL=dangonz3@student.42urduliz.com\n\
 	WP_USERNAME=wp_user\n\
 	WP_USER_EMAIL=dangonz3@student.42urduliz.com" \
-	> .env
+	> srcs/.env
 
 clean:
 	@docker compose -f $(DOCKER_COMPOSE_FILE) down
@@ -52,6 +52,11 @@ fclean: clean
 re: fclean all
 
 .PHONY: all clean fclean re volumes secrets env
+
+push:
+	git add .
+	git commit -m "generic_push"
+	git push
 
 check:
 	@git pull && \
