@@ -23,7 +23,7 @@ services:
 # environment: Define variables de entorno.
 #	El sufijo '_FILE' les indica a los scripts de inicialización de MariaDB y WordPress que no les estamos pasando el valor de la variable,
 #		sino de la ruta del archivo donde el valor de la variable de entorno está almacenado.
-#	MYSQL_PASSWORD_FILE: le indica al script de inicialización de MariaDB dónde encontrar la contraseña del usuario.
+#	MYSQL_PASSWORD_FILE: le indica al script de inicialización de MariaDB dónde encontrar la contraseña del usuario (dentro del contenedor).
 #	MYSQL_ROOT_PASSWORD_FILE: le indica dónde encontrar la contraseña del usuario root.
 mariadb:
   container_name: mariadb
@@ -38,7 +38,7 @@ mariadb:
     - db_password
     - db_root_password
   environment:
-    MYSQL_DATABASE: ${MYSQL_NAME}
+    MYSQL_DATABASE: ${MYSQL_DATABASE}
     MYSQL_USER: ${MYSQL_USER}
     MYSQL_PASSWORD_FILE: /run/secrets/db_password
     MYSQL_ROOT_PASSWORD_FILE: /run/secrets/db_root_password
@@ -72,11 +72,12 @@ wordpress:
   secrets:
     - db_password
   environment:
-    WORDPRESS_DB_NAME: ${MYSQL_NAME}
-    WORDPRESS_DB_USER: ${MYSQL_USER}
-    WORDPRESS_DB_PASSWORD_FILE: /run/secrets/db_password
-    WORDPRESS_DB_HOST: ${WORDPRESS_DB_HOST}
+    MYSQL_DATABASE: ${MYSQL_NAME}
+    MYSQL_USER: ${MYSQL_USER}
+    MYSQL_PASSWORD_FILE: /run/secrets/db_password
     DOMAIN_NAME: ${DOMAIN_NAME}
+    WORDPRESS_DB_HOST: ${WORDPRESS_DB_HOST}
+    
 
 # --- Servicio Nginx ---
 # container_name: Asigna un nombre fijo al contenedor.

@@ -1,87 +1,87 @@
-#!/bin/sh
-set -e
+#!/bin/bash
 
-# La espera manual ya no es necesaria, Docker la gestiona con el healthcheck.
-echo "MariaDB está listo. Iniciando configuración de WordPress..."
+MYSQL_PASSWORD = $(cat "${MYSQL_PASSWORD_FILE}")
 
-if [ ! -f "/var/www/html/wp-config.php" ]; then
-    echo "'wp-config.php' no encontrado. Iniciando instalación..."
+echo "Starting WordPress setup..."
+echo "Database: $MYSQL_DATABASE"
+echo "User: $MYSQL_USER" 
+echo "Domain: $DOMAIN_NAME"
 
+# Descarga la herramienta de línea de comandos de WordPress, WP-CLI. Para facilitar la instalación de WP.
+# -O guarda el fichero con su nombre original, wp-cli.phar.
+# lo mueve a /usr/local/bin/, es un directorio estándar para programas.
+curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
+chmod +x wp-cli.phar
+mv wp-cli.phar /usr/local/bin/wp
+
+# /var/www/html es la raíz estándar para los ficheros de una web. 
+# chown cambia el propietario de la carpeta y de todos sus archivos (-R).
+# www-data es el usuario que usan los servidores web como Nginx en Debian/Ubuntu.
+mkdir -p /var/www/html
+cd /var/www/html
+chown -R www-data:www-data /var/www/html
+chmod -R 755 /var/www/html
+
+# es un bucle de espera. 
+# mariadb: es el cliente de Mariadb. 
+# h mariadb: Intenta conectarse al servicio (que tambíen hemos llamado mariadb) de nuestro docker-compose.
+# envía las credenciales de inicio de sesión user (-u) y password (-p).
+# SELECT 1: Ejecuta una consulta SQL muy simple.
+# &>/dev/null: redirige las salidas estandrd y de error a dev/null para mantener la consola vacía.
+echo "Waiting for database..."
+while ! mariadb -h mariadb -u"$MYSQL_USER" -p"$MYSQL_PASSWORD" "$MYSQL_DATABASE" -e "SELECT 1;" &>/dev/null; do
+    echo "Database not ready, waiting..."
+    sleep 5
+done
+echo "✅ Database is ready!"
+
+# comprueba si el archivo wp-load.php (un archivo clave de WP) existe. Si no descarga WP. 
+if [ ! -f wp-load.php ]; then
+    echo "Downloading WordPress..."
     wp core download --allow-root
-    
-    wp config create \
-        --dbname="$WORDPRESS_DB_NAME" \
-        --dbuser="$WORDPRESS_DB_USER" \
-        --dbpass="$(cat "$WORDPRESS_DB_PASSWORD_FILE")" \
-        --dbhost="$WORDPRESS_DB_HOST" \
-        --allow-root
-
-    wp core install \
-        --url="$DOMAIN_NAME" \
-        --title="Inception" \
-        --admin_user="wp_admin" \
-        --admin_password="wp_admin_pass" \
-        --admin_email="admin@example.com" \
-        --allow-root
-
-    wp user create editor_user editor@example.com --role=editor --user_pass="editor_pass" --allow-root
-else
-    echo "'wp-config.php' encontrado. Omitiendo instalación."
 fi
 
-chown -R www-data:www-data /var/www/html
+# comprueba si el archivo el archivo de configuración existe. 
+# Si no lo crea con las variables de entorno de docker-compose.
+# --allow-root: por defecto WP no deja usar root para evitar accidentes. Lo permitimos.
+if [ ! -f wp-config.php ]; then
+    echo "Creating wp-config.php..."
+    wp config create \
+        --dbname="$MYSQL_DATABASE" \
+        --dbuser="$MYSQL_USER" \
+        --dbpass="$MYSQL_PASSWORD" \
+        --dbhost=mariadb:3306 \
+        --allow-root
+fi
 
-echo "Iniciando PHP-FPM..."
+# le pregunta a WP-CLI si WP está instalado. Si no lo instala.
+if ! wp core is-installed --allow-root; then
+    echo "Installing WordPress..."
+    wp core install \
+        --url=$DOMAIN_NAME \
+        --title="$WP_TITLE" \
+        --admin_user="$WP_ADMIN_USER" \
+        --admin_password="$WP_ADMIN_PASSWORD" \
+        --admin_email="$WP_ADMIN_EMAIL" \
+        --allow-root
+fi
+
+# comprueba si el usuario WP_USERNAME existe. Si no existe lo crea. 
+if ! wp user get "$WP_USERNAME" --field=ID --allow-root &> /dev/null; then
+    echo "Creating user: $WP_USERNAME"
+    wp user create \
+        "$WP_USERNAME" "$WP_USER_EMAIL" \
+        --user_pass="$WP_USER_PASSWORD" \
+        --role="$WP_USER_ROLE" \
+        --allow-root
+fi
+
+# sed -i ...: Usa el editor de texto sed para modificar un fichero de configuración de PHP-FPM.
+# 's|...|...|': Busca la línea que empieza por listen = y la reemplaza por listen = 0.0.0.0:9000.
+# Esto hace que PHP-FPM escuche peticiones en el puerto 9000 desde cualquier dirección de red 
+# (para que Nginx pueda conectarse a él), en lugar de en un socket local.
+echo "Configuring PHP-FPM..."
+sed -i 's|^listen = .*|listen = 0.0.0.0:9000|' /etc/php/7.4/fpm/pool.d/www.conf
+
+echo "✅ Starting PHP-FPM..."
 exec "$@"
-
-# #!/bin/sh
-
-# # Espera a que el servicio MariaDB esté disponible para aceptar conexiones.
-# # La directiva depends_on: en en docker-compose solo garantiza que MariaDB se inicie antes de WP,
-# # no garantiza que MariaDB este disponible.
-# #	until [comand]: ejecuta el código entre do y done hasta que el comando tenga éxito (return 0).
-# #	mysqladmin ping: comprueba si el servidor está disponible.
-# #	-h"$WORDPRESS_DB_HOST": especifica el servidor.
-# #	--silent: suprime la salida del comando en la terminal.
-
-# for i in $(seq 1 60)
-# do
-#   echo "waiting"
-#   sleep 1
-# done
-
-# # if [] Comprueba si WP ya ha sido instalado.
-# #	! -> operador de negación. -f "wp-config.php" -> comprueba si el archivo wp-config.php existe.
-# #	Si no existe, ejecuta el código entre then y fi.
-# #	Si intentasemos reinstalar wordpress sobre la instalación anterior, en los volumenes de docker 
-# #	(y por lo tanto persistente tras docker-compose down), se dañaria la instalación y el contenedor se dentendría.
-# # wp config create: crea el archivo de configuración wp-config.php que contiene las credenciales
-# #	(dbname, dbuser...) con las que conectarse a MariaDB.
-# #	cat "$WORDPRESS_DB_PASSWORD_FILE": la directiva _FILE es compatible con los procesos principales de
-# #		WP y MariaDB, pero no con un script de shell, tenemos que leer manualmente el contenido del archivo.
-# #		$(...) ejecuta el comando que está dentro del parentesis.
-# #	--allow-root: wp-cli se niega a ejecutarse si detecta que el usuario del sistema operativo que lo invoca es root.
-# #		Se hace para prevenir errores accidentales. --allow-root desactiva esa comprobación.
-# # wp core install: usa wp-config.php para conectarse a la base de datos y configura WP.
-# #	La instalación no puede completarse sin crear una cuenta de administrador inicial.
-# if [ ! -f "wp-config.php" ]; then
-#     wp config create \
-#         --dbname="$WORDPRESS_DB_NAME" \
-#         --dbuser="$WORDPRESS_DB_USER" \
-#         --dbpass="$(cat "$WORDPRESS_DB_PASSWORD_FILE")" \
-#         --dbhost="$WORDPRESS_DB_HOST" \
-#         --allow-root
-
-#     wp core install \
-#         --url="$DOMAIN_NAME" \
-#         --title="My WordPress Site" \
-#         --admin_user="My WordPress Admin" \
-#         --admin_password="My WordPress Password" \
-#         --admin_email="admin@example.com" \
-#         --allow-root
-# fi
-
-# # Ejecuta el comando principal del contenedor (CMD).
-# # Usar CMD en lugar de pasarle a exec un valor directo nos permite modicar el script 
-# # alterando CMD desde la línea de comandos (docker run) o desde docker-compose (con la directiva command:).
-# exec "$@"
