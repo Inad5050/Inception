@@ -46,7 +46,7 @@ clean:
 # Por defecto prune solo elimina recursos "colgantes".
 # --all lo altera para que elimine todos los recursos no usados: contenedores, redes e imagenes.
 # --volumes hace que tambíen elimine volumenes.
-fclean: clean
+fclean:
 	@docker system prune --all --volumes --force
 	@sudo rm -rf $(VOLUME_DIR)
 	@sudo rm -rf ${SECRETS_DIR}
