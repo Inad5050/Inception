@@ -49,6 +49,11 @@ push:
 	git commit -m "fastCommit"
 	git push
 
+secrets:
+	mkdir ./secrets
+	echo "user_password" > ./secrets/db_password.txt
+	echo "root_password" > ./secrets/db_root_password.txt
+
 check:
 	@git pull && \
 	$(MAKE) fclean && \
@@ -58,3 +63,4 @@ check:
 	docker logs wordpress ; \
 	docker logs nginx && \
 	curl -k https://dangonz3.42.fr
+	
