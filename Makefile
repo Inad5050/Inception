@@ -21,7 +21,7 @@ endef
 
 # --- Reglas Principales ---
 
-all: create_dirs
+all: create_dirs secrets
 	@$(SETUP_HOSTS)
 	@docker-compose -f $(DOCKER_COMPOSE_FILE) up -d --build
 	@echo "$(COLOR_GREEN)------------ Contenedores iniciados ------------$(COLOR_RESET)"
@@ -42,17 +42,17 @@ create_dirs:
 	@mkdir -p $(DB_DATA_DIR)
 	@mkdir -p $(WP_DATA_DIR)
 
+secrets:
+	mkdir ./secrets
+	echo "user_password" > ./secrets/db_password.txt
+	echo "root_password" > ./secrets/db_root_password.txt
+
 .PHONY: all clean fclean re create_dirs
 
 push:
 	git add .
 	git commit -m "fastCommit"
 	git push
-
-secrets:
-	mkdir ./secrets
-	echo "user_password" > ./secrets/db_password.txt
-	echo "root_password" > ./secrets/db_root_password.txt
 
 check:
 	@git pull && \
