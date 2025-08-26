@@ -27,7 +27,7 @@ secrets:
 
 env:
 	@echo "$(COLOR_GREEN)env$(COLOR_RESET)"
-	@echo \
+	@echo -e \
 	"DATA_PATH=/home/dangonz3/data\n\
 	DOMAIN_NAME=dangonz3.42.fr\n\
 	MYSQL_DATABASE=MYSQL_db\n\
