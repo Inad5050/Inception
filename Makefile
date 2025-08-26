@@ -53,11 +53,6 @@ re: fclean all
 
 .PHONY: all clean fclean re create_volumes
 
-push:
-	git add .
-	git commit -m "fastCommit"
-	git push
-
 check:
 	@git pull && \
 	$(MAKE) fclean && \
