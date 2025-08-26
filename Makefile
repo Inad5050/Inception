@@ -1,53 +1,38 @@
-# Makefile final y robusto para gestionar el ciclo de vida del proyecto
-
-# --- Variables ---
 DOCKER_COMPOSE_FILE = srcs/docker-compose.yml
-DOMAIN_NAME = dangonz3.42.fr
 VOLUME_DIR = /home/dangonz3/data
-DB_DATA_DIR = $(VOLUME_DIR)/db_data
-WP_DATA_DIR = $(VOLUME_DIR)/wp_data
+MARIADB_VOLUME = mariadb_data
+WORDPRESS_VOLUME = wordpress_data
+SECRETS_DIR = ./secrets
 COLOR_GREEN = \033[0;32m
 COLOR_RESET = \033[0m
 
-# --- Lógica de Scripts ---
-define SETUP_HOSTS
-	@if ! grep -q "127.0.0.1 ${DOMAIN_NAME}" /etc/hosts; then \
-		echo "Añadiendo ${DOMAIN_NAME} a /etc/hosts..."; \
-		echo "127.0.0.1 ${DOMAIN_NAME}" | sudo tee -a /etc/hosts > /dev/null; \
-	else \
-		echo "${DOMAIN_NAME} ya está configurado en /etc/hosts."; \
-	fi
-endef
-
-# --- Reglas Principales ---
-
-all: create_dirs secrets
-	@$(SETUP_HOSTS)
-	@docker-compose -f $(DOCKER_COMPOSE_FILE) up -d --build
+all: create_volumes create_secrets
+	@docker compose -f $(DOCKER_COMPOSE_FILE) up -d --build
 	@echo "$(COLOR_GREEN)------------ Contenedores iniciados ------------$(COLOR_RESET)"
 	@docker ps
 
+create_volumes:
+	@mkdir -p ${VOLUME_DIR}/${MARIADB_VOLUME}
+	@mkdir -p ${VOLUME_DIR}/${WORDPRESS_VOLUME}
+
+create_secrets:
+	mkdir -p ${SECRETS_DIR}
+	echo "user_password" > ${SECRETS_DIR}/db_password.txt
+	echo "root_password" > ${SECRETS_DIR}/db_root_password.txt
+
 clean:
-	@docker-compose -f $(DOCKER_COMPOSE_FILE) down
+	@docker compose -f $(DOCKER_COMPOSE_FILE) down
 	@echo "$(COLOR_GREEN)------------ Servicios detenidos ------------$(COLOR_RESET)"
 
 fclean: clean
 	@docker system prune --all --volumes --force
 	@sudo rm -rf $(VOLUME_DIR)
+	@sudo rm -rf ${SECRETS_DIR}
 	@echo "$(COLOR_GREEN)------------ Limpieza completa finalizada ------------$(COLOR_RESET)"
 
 re: fclean all
 
-create_dirs:
-	@mkdir -p $(DB_DATA_DIR)
-	@mkdir -p $(WP_DATA_DIR)
-
-secrets:
-	mkdir ./secrets
-	echo "user_password" > ./secrets/db_password.txt
-	echo "root_password" > ./secrets/db_root_password.txt
-
-.PHONY: all clean fclean re create_dirs
+.PHONY: all clean fclean re create_volumes
 
 push:
 	git add .
@@ -62,5 +47,6 @@ check:
 	docker logs mariadb ; \
 	docker logs wordpress ; \
 	docker logs nginx && \
+	echo "$(COLOR_GREEN)✅ Comprobando web $(COLOR_RESET)" ; \
 	curl -k https://dangonz3.42.fr
 	
