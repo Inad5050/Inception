@@ -3,6 +3,7 @@ VOLUME_DIR = /home/dangonz3/data
 MARIADB_VOLUME = mariadb_data
 WORDPRESS_VOLUME = wordpress_data
 SECRETS_DIR = ./secrets
+ENV_FILE = ./srcs/.env
 COLOR_GREEN = \033[0;32m
 COLOR_RESET = \033[0m
 
@@ -33,7 +34,7 @@ env:
 	WP_ADMIN_EMAIL=dangonz3@student.42urduliz.com\n\
 	WP_USERNAME=wp_user\n\
 	WP_USER_EMAIL=dangonz3@student.42urduliz.com" \
-	> srcs/.env
+	> $(ENV_FILE)
 
 clean:
 	@docker compose -f $(DOCKER_COMPOSE_FILE) down
@@ -46,7 +47,7 @@ fclean: clean
 	@docker system prune --all --volumes --force
 	@sudo rm -rf $(VOLUME_DIR)
 	@sudo rm -rf ${SECRETS_DIR}
-	@sudo rm -rf .env
+	@sudo rm $(ENV_FILE)
 	@echo "$(COLOR_GREEN)------------ Limpieza completa finalizada ------------$(COLOR_RESET)"
 
 re: fclean all
