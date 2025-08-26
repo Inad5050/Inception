@@ -6,23 +6,23 @@ SECRETS_DIR = ./secrets
 COLOR_GREEN = \033[0;32m
 COLOR_RESET = \033[0m
 
-all: create_volumes create_secrets create_env
+all: volumes secrets env
 	@docker compose -f $(DOCKER_COMPOSE_FILE) up -d --build
 	@echo "$(COLOR_GREEN)------------ Contenedores iniciados ------------$(COLOR_RESET)"
 	@docker ps
 
-create_volumes:
+volumes:
 	@mkdir -p ${VOLUME_DIR}/${MARIADB_VOLUME}
 	@mkdir -p ${VOLUME_DIR}/${WORDPRESS_VOLUME}
 
-create_secrets:
+secrets:
 	@mkdir -p ${SECRETS_DIR}
 	@echo "user_password" > ${SECRETS_DIR}/db_password.txt
 	@echo "root_password" > ${SECRETS_DIR}/db_root_password.txt
 	@echo "wp_admin_password" > ${SECRETS_DIR}/wp_admin_password.txt
 	@echo "wp_user_password" > ${SECRETS_DIR}/wp_user_password.txt
 
-create_env:
+env:
 	@echo \
 	"DATA_PATH=/home/dangonz3/data\n\
 	DOMAIN_NAME=dangonz3.42.fr\n\
@@ -51,7 +51,7 @@ fclean: clean
 
 re: fclean all
 
-.PHONY: all clean fclean re create_volumes
+.PHONY: all clean fclean re volumes secrets env
 
 check:
 	@git pull && \
