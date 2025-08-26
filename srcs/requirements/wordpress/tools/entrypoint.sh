@@ -72,7 +72,7 @@ if ! wp user get "$WP_USERNAME" --field=ID --allow-root &> /dev/null; then
     wp user create \
         "$WP_USERNAME" "$WP_USER_EMAIL" \
         --user_pass="$WP_USER_PASSWORD" \
-        --role="$WP_USER_ROLE" \
+        --role="administrator" \
         --allow-root
 fi
 

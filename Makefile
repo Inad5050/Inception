@@ -16,14 +16,19 @@ create_volumes:
 	@mkdir -p ${VOLUME_DIR}/${WORDPRESS_VOLUME}
 
 create_secrets:
-	mkdir -p ${SECRETS_DIR}
-	echo "user_password" > ${SECRETS_DIR}/db_password.txt
-	echo "root_password" > ${SECRETS_DIR}/db_root_password.txt
+	@mkdir -p ${SECRETS_DIR}
+	@echo "user_password" > ${SECRETS_DIR}/db_password.txt
+	@echo "root_password" > ${SECRETS_DIR}/db_root_password.txt
+	@echo "wp_admin_password" > ${SECRETS_DIR}/wp_admin_password.txt
+	@echo "wp_user_password" > ${SECRETS_DIR}/wp_user_password.txt
 
 clean:
 	@docker compose -f $(DOCKER_COMPOSE_FILE) down
 	@echo "$(COLOR_GREEN)------------ Servicios detenidos ------------$(COLOR_RESET)"
 
+# Por defecto prune solo elimina recursos "colgantes".
+# --all lo altera para que elimine todos los recursos no usados: contenedores, redes e imagenes.
+# --volumes hace que tambíen elimine volumenes.
 fclean: clean
 	@docker system prune --all --volumes --force
 	@sudo rm -rf $(VOLUME_DIR)
