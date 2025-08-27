@@ -151,7 +151,7 @@ networks:
     driver: bridge
 
 secrets:
-  db_password:
+  password1:
     file: ../secrets/password1.txt
-  root_password:
+  password2:
     file: ../secrets/password2.txt
