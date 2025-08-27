@@ -1,6 +1,6 @@
 #!/bin/bash
 
-MYSQL_PASSWORD = $(cat "${MYSQL_PASSWORD_FILE}")
+MYSQL_PASSWORD=$(cat "${MYSQL_PASSWORD_FILE}")
 
 echo "Database: $MYSQL_DATABASE"
 echo "User: $MYSQL_USER" 

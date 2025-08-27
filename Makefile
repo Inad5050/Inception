@@ -7,27 +7,21 @@ ENV_FILE = ./srcs/.env
 COLOR_GREEN = \033[0;32m
 COLOR_RESET = \033[0m
 
-all:
+all: volumes secrets env
 	@docker compose -f $(DOCKER_COMPOSE_FILE) up -d --build
 	@echo "$(COLOR_GREEN)------------ Contenedores iniciados ------------$(COLOR_RESET)"
 	@docker ps
-
-setup: volumes secrets env
 
 volumes:
 	@echo "$(COLOR_GREEN)volumes$(COLOR_RESET)"
 	@mkdir -p ${VOLUME_DIR}/${MARIADB_VOLUME}
 	@mkdir -p ${VOLUME_DIR}/${WORDPRESS_VOLUME}
-	@sudo chown -R 999:999 ${VOLUME_DIR}/${MARIADB_VOLUME}
-	@sudo chown -R 33:33 ${VOLUME_DIR}/${WORDPRESS_VOLUME}
 
 secrets:
 	@echo "$(COLOR_GREEN)secrets$(COLOR_RESET)"
 	@mkdir -p ${SECRETS_DIR}
 	@echo "user_password" > ${SECRETS_DIR}/db_password.txt
 	@echo "root_password" > ${SECRETS_DIR}/db_root_password.txt
-	@echo "wp_admin_password" > ${SECRETS_DIR}/wp_ad_password.txt
-	@echo "wp_user_password" > ${SECRETS_DIR}/wp_user_password.txt
 
 env:
 	@echo "$(COLOR_GREEN)env$(COLOR_RESET)"
@@ -50,10 +44,12 @@ clean:
 # --all lo altera para que elimine todos los recursos no usados: contenedores, redes e imagenes.
 # --volumes hace que tambíen elimine volumenes.
 fclean:
-	@docker system prune --all --volumes --force
-	@sudo rm -rf $(VOLUME_DIR)
-	@sudo rm -rf ${SECRETS_DIR}
-	@sudo rm -rf $(ENV_FILE)
+	@docker system prune --all --force
+	@rm -rf ${VOLUME_DIR}/${MARIADB_VOLUME}
+	@rm -rf ${VOLUME_DIR}/${WORDPRESS_VOLUME}
+	@rm -rf $(VOLUME_DIR)
+	@rm -rf ${SECRETS_DIR}
+	@rm -rf $(ENV_FILE)
 	@echo "$(COLOR_GREEN)------------ Limpieza completa finalizada ------------$(COLOR_RESET)"
 
 re: fclean all
@@ -64,13 +60,4 @@ push:
 	git add .
 	git commit -m "generic_push"
 	git push
-
-check:
-	$(MAKE) all > OUT.txt ; \
-	echo "$(COLOR_GREEN)✅ Despliegue completado. Mostrando logs...$(COLOR_RESET)" && \
-	docker logs mariadb && \
-	docker logs wordpress && \
-	docker logs nginx && \
-	echo "$(COLOR_GREEN)✅ Comprobando web $(COLOR_RESET)" && \
-	curl -k https://dangonz3.42.fr
 	
