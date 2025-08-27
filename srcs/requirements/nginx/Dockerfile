@@ -26,6 +26,7 @@ RUN openssl req -x509 -nodes \
 STOPSIGNAL SIGQUIT
 COPY ./conf/default.conf /etc/nginx/conf.d/wp-conf.conf
 RUN chown -R www-data:www-data /var/www/html
+EXPOSE 443
 CMD ["nginx", "-g", "daemon off;"]
 
 # CMD define el proceso principal que el contenedor debe ejecutar al arrancar.

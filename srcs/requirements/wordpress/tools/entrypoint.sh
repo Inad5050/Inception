@@ -1,7 +1,5 @@
 #!/bin/bash
 
-echo \n\n\n"WORDPRESS SCRIPT"\n\n\n
-
 MYSQL_PASSWORD = $(cat "${MYSQL_PASSWORD_FILE}")
 
 echo "Database: $MYSQL_DATABASE"

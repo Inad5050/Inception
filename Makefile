@@ -18,6 +18,8 @@ volumes:
 	@echo "$(COLOR_GREEN)volumes$(COLOR_RESET)"
 	@mkdir -p ${VOLUME_DIR}/${MARIADB_VOLUME}
 	@mkdir -p ${VOLUME_DIR}/${WORDPRESS_VOLUME}
+	@sudo chown -R 999:999 ${VOLUME_DIR}/${MARIADB_VOLUME}
+	@sudo chown -R 33:33 ${VOLUME_DIR}/${WORDPRESS_VOLUME}
 
 secrets:
 	@echo "$(COLOR_GREEN)secrets$(COLOR_RESET)"
@@ -30,8 +32,7 @@ secrets:
 env:
 	@echo "$(COLOR_GREEN)env$(COLOR_RESET)"
 	@echo \
-	"DATA_PATH=/home/dangonz3/data\n\
-	DOMAIN_NAME=dangonz3.42.fr\n\
+	"DOMAIN_NAME=dangonz3.42.fr\n\
 	MYSQL_DATABASE=MYSQL_db\n\
 	MYSQL_USER=MYSQL_user\n\
 	WP_TITLE=inception\n\
