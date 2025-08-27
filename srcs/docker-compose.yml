@@ -113,7 +113,7 @@ services:
     volumes:
       - mariadb:/var/lib/mysql
     networks:
-    - my-network
+      - my-network
     restart: always
     environment:
       SQL_DATABASE: ${SQL_DATABASE}
