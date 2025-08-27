@@ -113,6 +113,7 @@ services:
     volumes:
       - mariadb:/var/lib/mysql
     networks:
+    - my-network
     restart: always
     environment:
       SQL_DATABASE: ${SQL_DATABASE}
@@ -143,6 +144,8 @@ services:
       - mariadb
     volumes:
       - wordpress:/var/www/html
+      - my-network
+    networks:
       - my-network
     restart: always
     environment:
@@ -181,7 +184,7 @@ services:
     volumes:
       - wordpress:/var/www/html
     networks:
-    - inception_network
+      - my-network
     restart: always
 
 # networks: Declara la red personalizada para permitir la comunicación entre servicios por su nombre.
