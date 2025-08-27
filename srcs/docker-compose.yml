@@ -36,15 +36,19 @@ services:
     networks:
       - inception_network
     restart: always
-    secrets:
-      - db_password
-      - db_root_password
+    # secrets:
+      # - db_password
+      # - db_root_password
     environment:
-      MYSQL_DATABASE: ${MYSQL_DATABASE}
-      MYSQL_USER: ${MYSQL_USER}
-      MYSQL_PASSWORD_FILE: /run/secrets/db_password
-      MYSQL_ROOT_PASSWORD_FILE: /run/secrets/db_root_password
-
+      # MYSQL_DATABASE: ${MYSQL_DATABASE}
+      # MYSQL_USER: ${MYSQL_USER}
+      # MYSQL_PASSWORD_FILE: /run/secrets/db_password
+      # MYSQL_ROOT_PASSWORD_FILE: /run/secrets/db_root_password
+      SQL_DATABASE: ${SQL_DATABASE}
+      SQL_USER: ${SQL_USER}
+      SQL_PASSWORD: ${SQL_PASSWORD}
+      SQL_ROOT_PASSWORD: ${SQL_ROOT_PASSWORD}
+      
 # --- Servicio WordPress ---
 # container_name: Asigna un nombre fijo al contenedor.
 # image: cuando está presente junto a build pasa a simplemente nombrar la imagen de docker, si no se usa un nombre por defecto.
@@ -71,22 +75,32 @@ services:
     networks:
       - inception_network
     restart: always
-    secrets:
-      - db_password
+    # secrets:
+      # - db_password
     environment:
-      MYSQL_DATABASE: ${MYSQL_DATABASE}
-      MYSQL_USER: ${MYSQL_USER}
-      MYSQL_PASSWORD_FILE: /run/secrets/db_password
+      # MYSQL_DATABASE: ${MYSQL_DATABASE}
+      # MYSQL_USER: ${MYSQL_USER}
+      # MYSQL_PASSWORD_FILE: /run/secrets/db_password
+      # DOMAIN_NAME: ${DOMAIN_NAME}
+      # WP_TITLE: ${WP_TITLE}
+      # WP_ADMIN_USER: ${WP_ADMIN_USER}
+      # WP_ADMIN_PASSWORD_FILE: /run/secrets/wp_admin_password
+      # WP_ADMIN_EMAIL: ${WP_ADMIN_EMAIL}
+      # WP_USERNAME: ${WP_USERNAME}
+      # WP_USER_EMAIL: ${WP_USER_EMAIL}
+      # WP_USER_PASSWORD: /run/secrets/wp_user_password
+      SQL_DATABASE: ${SQL_DATABASE}
+      SQL_USER: ${SQL_USER}
+      SQL_PASSWORD: ${SQL_PASSWORD}
       DOMAIN_NAME: ${DOMAIN_NAME}
-
       WP_TITLE: ${WP_TITLE}
       WP_ADMIN_USER: ${WP_ADMIN_USER}
-      WP_ADMIN_PASSWORD_FILE: /run/secrets/wp_admin_password
+      WP_ADMIN_PASSWORD: ${WP_ADMIN_PASSWORD}
       WP_ADMIN_EMAIL: ${WP_ADMIN_EMAIL}
-
       WP_USERNAME: ${WP_USERNAME}
       WP_USER_EMAIL: ${WP_USER_EMAIL}
-      WP_USER_PASSWORD: /run/secrets/wp_user_password
+      WP_USER_PASSWORD: ${WP_USER_PASSWORD}
+      WP_USER_ROLE: ${WP_USER_ROLE}
 
 # --- Servicio Nginx ---
 # container_name: Asigna un nombre fijo al contenedor.
@@ -123,12 +137,12 @@ networks:
 
 # secrets: Define los secretos, indicando la ruta en el host del fichero que contiene el valor sensible.
 # son las contraseñas de la base de datos mariaDB y WP.
-secrets:
-  db_password: #nombre del secreto
-    file: ../secrets/db_password.txt
-  db_root_password:
-    file: ../secrets/db_root_password.txt
-  wp_admin_password:
-    file: ../secrets/wp_admin_password.txt
-  wp_user_password:
-    file: ../secrets/wp_user_password.txt
+# secrets:
+#   db_password: #nombre del secreto
+#     file: ../secrets/db_password.txt
+#   db_root_password:
+#     file: ../secrets/db_root_password.txt
+#   wp_admin_password:
+#     file: ../secrets/wp_admin_password.txt
+#   wp_user_password:
+#     file: ../secrets/wp_user_password.txt
