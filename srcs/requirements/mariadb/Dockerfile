@@ -32,7 +32,7 @@ COPY ./tools/entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh
 EXPOSE 3306
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
-CMD ["mariadbd", "--bind-address=0.0.0.0"]
+#CMD ["mariadbd", "--bind-address=0.0.0.0"]
 
 # --- NOTAS ---
 

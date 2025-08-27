@@ -15,4 +15,5 @@ EOF
 
 mysqladmin -uroot shutdown
 
-exec "$@"
+#exec "$@"
+exec mariadbd --bind-address=0.0.0.0

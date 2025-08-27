@@ -23,7 +23,7 @@ RUN chmod +x /usr/local/bin/entrypoint.sh
 RUN mkdir -p /var/www/html /run/php
 EXPOSE 9000
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
-CMD ["/usr/sbin/php-fpm7.4", "-F"]
+#CMD ["/usr/sbin/php-fpm7.4", "-F"]
 
 # ENTRYPOINT Punto de entrada para la configuración inicial. Ejecuta un script de shell.
 # CMD Comando por defecto para iniciar PHP-FPM en primer plano.
