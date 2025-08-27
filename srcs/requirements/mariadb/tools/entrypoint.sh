@@ -1,7 +1,5 @@
 #!/bin/bash
 
-SQL_PASSWORD=$(cat "${SQL_PASSWORD_FILE}")
-
 service mariadb start
 
 sleep 5
@@ -15,5 +13,4 @@ EOF
 
 mysqladmin -uroot shutdown
 
-#exec "$@"
 exec mariadbd --bind-address=0.0.0.0
