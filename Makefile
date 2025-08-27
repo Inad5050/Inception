@@ -22,21 +22,21 @@ secrets:
 	@mkdir -p ${SECRETS_DIR}
 	@echo "user_password" > ${SECRETS_DIR}/db_password.txt
 	@echo "root_password" > ${SECRETS_DIR}/db_root_password.txt
-	@echo "wp_admin_password" > ${SECRETS_DIR}/wp_admin_password.txt
+	@echo "wp_admin_password" > ${SECRETS_DIR}/wp_ad_password.txt
 	@echo "wp_user_password" > ${SECRETS_DIR}/wp_user_password.txt
 
 env:
 	@echo "$(COLOR_GREEN)env$(COLOR_RESET)"
 	@echo \
-	"DATA_PATH=/home/dangonz3/data\n\
-	DOMAIN_NAME=dangonz3.42.fr\n\
-	MYSQL_DATABASE=MYSQL_db\n\
-	MYSQL_USER=MYSQL_user\n\
-	WP_TITLE=inception\n\
-	WP_ADMIN_USER=wp_admin\n\
-	WP_ADMIN_EMAIL=dangonz3@student.42urduliz.com\n\
-	WP_USERNAME=wp_user\n\
-	WP_USER_EMAIL=dangonz3@student.42urduliz.com" \
+	"DATA_PATH: /home/dangonz3/data\n\
+	DOMAIN_NAME: dangonz3.42.fr\n\
+	MYSQL_DATABASE: MYSQL_db\n\
+	MYSQL_USER: MYSQL_user\n\
+	WP_TITLE: inception\n\
+	WP_ADMIN_USER: wp_ad\n\
+	WP_ADMIN_EMAIL: dangonz3@student.42urduliz.com\n\
+	WP_USERNAME: wp_user\n\
+	WP_USER_EMAIL: dangonz3@student.42urduliz.com" \
 	> $(ENV_FILE)
 
 clean:
