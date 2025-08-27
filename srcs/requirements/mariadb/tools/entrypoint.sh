@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo \n\n\n"MariaDB script"\n\n\n
+echo \n\n\n"MARIADB SCRIPT"\n\n\n
 
 MYSQL_PASSWORD=$(cat "${MYSQL_PASSWORD_FILE}")
 
