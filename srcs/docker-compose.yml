@@ -188,9 +188,6 @@ services:
 #   driver: Especifica que se usa el driver 'bridge', estándar para comunicación en un mismo host. \
 # Siempre está disponible. Es un componente del demonio de Docker.
 # Si omites la sección networks, Docker Compose crea automáticamente una red de tipo bridge.
-networks:
-  inception_network:
-    driver: bridge
 
 # secrets: Define los secretos, indicando la ruta en el host del fichero que contiene el valor sensible.
 # son las contraseñas de la base de datos mariaDB y WP.
