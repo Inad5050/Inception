@@ -27,8 +27,7 @@
 #	MariaDB escuchara en todas las interfaces de red dentro del contenedor, no solo en localhost.
 
 FROM debian:bullseye
-RUN apt update && \ 
-    apt install -y mariadb-server
+RUN apt update && apt install -y mariadb-server
 COPY ./tools/entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh
 EXPOSE 3306

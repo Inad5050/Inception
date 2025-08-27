@@ -26,9 +26,11 @@ services:
 #	MYSQL_PASSWORD_FILE: le indica al script de inicialización de MariaDB dónde encontrar la contraseña del usuario (dentro del contenedor).
 #	MYSQL_ROOT_PASSWORD_FILE: le indica dónde encontrar la contraseña del usuario root.
   mariadb:
-    container_name: mariadb
     image: mariadb
+    container_name: mariadb
     build: ./requirements/mariadb
+    ports:
+      - "3306:3306"
     volumes:
       - ${DATA_PATH}/mariadb_data:/var/lib/mysql
     networks:
@@ -59,8 +61,8 @@ services:
 # 	Cuando se utiliza la directiva secrets en Docker Compose, Docker toma el contenido del archivo en el host y 
 #	lo monta como un archivo dentro del contenedor en una ruta específica. Por defecto: /run/secrets/<nombre_del_secreto>.
   wordpress:
-    container_name: wordpress
     image: wordpress
+    container_name: wordpress
     build: ./requirements/wordpress
     depends_on:
       - mariadb
@@ -98,8 +100,8 @@ services:
 # restart: Configura el reinicio automático.
 #	always: El contenedor se reiniciará siempre que se detenga. Para garantizar que este siempre disponible.
   nginx:
-    container_name: nginx
     image: nginx
+    container_name: nginx
     build: ./requirements/nginx
     depends_on:
     - wordpress

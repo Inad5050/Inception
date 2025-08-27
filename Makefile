@@ -65,14 +65,11 @@ push:
 	git push
 
 check:
-	@git pull && \
-	$(MAKE) fclean && \
-	sudo $(MAKE) setup \
-	$(MAKE) all && \
-	echo "$(COLOR_GREEN)✅ Despliegue completado. Mostrando logs...$(COLOR_RESET)" ; \
-	docker logs mariadb ; \
-	docker logs wordpress ; \
+	$(MAKE) all > OUT.txt ; \
+	echo "$(COLOR_GREEN)✅ Despliegue completado. Mostrando logs...$(COLOR_RESET)" && \
+	docker logs mariadb && \
+	docker logs wordpress && \
 	docker logs nginx && \
-	echo "$(COLOR_GREEN)✅ Comprobando web $(COLOR_RESET)" ; \
+	echo "$(COLOR_GREEN)✅ Comprobando web $(COLOR_RESET)" && \
 	curl -k https://dangonz3.42.fr
 	
