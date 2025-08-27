@@ -15,7 +15,7 @@ services:
 # restart: el contenedor se reiniciará si falla, pero no si ha sido detenido manualmente por un usuario.
 # secrets: Otorga al contenedor acceso a los secretos de Docker definidos en el nivel raíz de docker-compose.
 #	Cuando declaramos secrets: docker coge el contenido del archivo local y crea un nuevo archivo en el contenedor,
-#		en la ruta ../secrets.
+#		en la ruta /run/secrets.
 #	run es una ubicación estándar en los sistemas operativos Linux modernos para almacenar datos de tiempo de ejecución.
 #	Durante la configuración inicial MariaDB necesita permisos root para: crear la base de datos para WordPress,
 #		crear el usuario para WordPress y otorgar privilegios a ese usuario.
@@ -42,8 +42,8 @@ services:
     environment:
       SQL_DATABASE: ${SQL_DATABASE}
       SQL_USER: ${SQL_USER}
-      SQL_PASSWORD_FILE: ../secrets/password1
-      SQL_ROOT_PASSWORD_FILE: ../secrets/password2
+      SQL_PASSWORD_FILE: /run/secrets/password1
+      SQL_ROOT_PASSWORD_FILE: /run/secrets/password2
       
       
 # --- Servicio WordPress ---
@@ -60,7 +60,7 @@ services:
 #		Las credenciales root son solo necearias para la configuración inicial de MariaDB.
 # environment: Define variables para que WordPress se conecte a la base de datos, usando secretos para la contraseña.
 # 	Cuando se utiliza la directiva secrets en Docker Compose, Docker toma el contenido del archivo en el host y 
-#	lo monta como un archivo dentro del contenedor en una ruta específica. Por defecto: ../secrets/<nombre_del_secreto>.
+#	lo monta como un archivo dentro del contenedor en una ruta específica. Por defecto: /run/secrets/<nombre_del_secreto>.
   wordpress:
     image: wordpress
     container_name: wordpress
@@ -78,17 +78,17 @@ services:
     environment:
       SQL_DATABASE: ${SQL_DATABASE}
       SQL_USER: ${SQL_USER}
-      SQL_PASSWORD_FILE: ../secrets/password1
+      SQL_PASSWORD_FILE: /run/secrets/password1
 
       DOMAIN_NAME: ${DOMAIN_NAME}
       WP_TITLE: ${WP_TITLE}
       WP_ADMIN_USER: ${WP_ADMIN_USER}
-      WP_ADMIN_PASSWORD_FILE: ../secrets/password2
+      WP_ADMIN_PASSWORD_FILE: /run/secrets/password2
 
       WP_ADMIN_EMAIL: ${WP_ADMIN_EMAIL}
       WP_USERNAME: ${WP_USERNAME}
       WP_USER_EMAIL: ${WP_USER_EMAIL}
-      WP_USER_PASSWORD_FILE: ../secrets/password1
+      WP_USER_PASSWORD_FILE: /run/secrets/password1
 
       WP_USER_ROLE: ${WP_USER_ROLE}
 
