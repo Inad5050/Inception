@@ -1,15 +1,15 @@
-DOCKER_COMPOSE_FILE = srcs/docker-compose.yml
-VOLUME_DIR = /home/dangonz3/data
-MARIADB_VOLUME = mariadb_data
-WORDPRESS_VOLUME = wordpress_data
-SECRETS_DIR = ./secrets
-ENV_FILE = ./srcs/.env
-COLOR_GREEN = \033[0;32m
-COLOR_RESET = \033[0m
+DOCKER_COMPOSE_FILE=srcs/docker-compose.yml
+VOLUME_DIR=/home/dangonz3/data
+MARIADB_VOLUME=mariadb_data
+WORDPRESS_VOLUME=wordpress_data
+SECRETS_DIR=./secrets
+ENV_FILE=./srcs/.env
+COLOR_GREEN=\033[0;32m
+COLOR_RESET=\033[0m
 
 all:
-	@mkdir -p ${VOLUME_DIR}/${MARIADB_VOLUME}
-	@mkdir -p ${VOLUME_DIR}/${WORDPRESS_VOLUME}
+	@mkdir -p /home/dangonz3/data/wordpress
+	@mkdir -p /home/dangonz3/data/mariadb2
 	@docker compose -f $(DOCKER_COMPOSE_FILE) up --build
 
 setup: secrets env
