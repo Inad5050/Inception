@@ -8,16 +8,11 @@ COLOR_GREEN = \033[0;32m
 COLOR_RESET = \033[0m
 
 all:
-	@docker compose -f $(DOCKER_COMPOSE_FILE) up -d --build
-	@echo "$(COLOR_GREEN)------------ Contenedores iniciados ------------$(COLOR_RESET)"
-	@docker ps
-
-setup: volumes secrets env
-
-volumes:
-	@echo "$(COLOR_GREEN)volumes$(COLOR_RESET)"
 	@mkdir -p ${VOLUME_DIR}/${MARIADB_VOLUME}
 	@mkdir -p ${VOLUME_DIR}/${WORDPRESS_VOLUME}
+	@docker compose -f $(DOCKER_COMPOSE_FILE) up --build
+
+setup: secrets env
 
 secrets:
 	@echo "$(COLOR_GREEN)secrets$(COLOR_RESET)"
@@ -39,14 +34,15 @@ env:
 	> $(ENV_FILE)
 
 clean:
-	@docker compose -f $(DOCKER_COMPOSE_FILE) down
-	@echo "$(COLOR_GREEN)------------ Servicios detenidos ------------$(COLOR_RESET)"
+	@docker compose -f $(DOCKER_COMPOSE_FILE) down -v
 
 # Por defecto prune solo elimina recursos "colgantes".
 # --all lo altera para que elimine todos los recursos no usados: contenedores, redes e imagenes.
 # --volumes hace que tambíen elimine volumenes.
 fclean: clean
-	@docker system prune --all --force --volumes
+	@docker image prune -a -f
+	@docker volume prune -f
+	@docker system prune -a -f
 	@rm -rf ${VOLUME_DIR}/${MARIADB_VOLUME}
 	@rm -rf ${VOLUME_DIR}/${WORDPRESS_VOLUME}
 	@rm -rf $(VOLUME_DIR)
