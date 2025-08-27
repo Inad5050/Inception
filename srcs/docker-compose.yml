@@ -125,17 +125,17 @@ services:
 #   wp_user_password:
 #     file: ../secrets/wp_user_password.txt
 
-volumes:
-  mariadb:
-    driver_opts:
-      o: bind
-      type: none
-      device: /home/dangonz3/data/mariadb2
-  wordpress:
-    driver_opts:
-      o: bind
-      type: none
-      device: /home/dangonz3/data/wordpress
+# volumes:
+#   mariadb:
+#     driver_opts:
+#       o: bind
+#       type: none
+#       device: /home/dangonz3/data/mariadb2
+#   wordpress:
+#     driver_opts:
+#       o: bind
+#       type: none
+#       device: /home/dangonz3/data/wordpress
 networks:
   my-network:
     name: dangonz3-network
