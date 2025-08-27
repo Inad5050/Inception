@@ -7,10 +7,12 @@ ENV_FILE = ./srcs/.env
 COLOR_GREEN = \033[0;32m
 COLOR_RESET = \033[0m
 
-all: volumes secrets env
+all:
 	@docker compose -f $(DOCKER_COMPOSE_FILE) up -d --build
 	@echo "$(COLOR_GREEN)------------ Contenedores iniciados ------------$(COLOR_RESET)"
 	@docker ps
+
+setup: volumes secrets env
 
 volumes:
 	@echo "$(COLOR_GREEN)volumes$(COLOR_RESET)"
@@ -65,7 +67,8 @@ push:
 check:
 	@git pull && \
 	$(MAKE) fclean && \
-	sudo $(MAKE) all && \
+	sudo $(MAKE) setup \
+	$(MAKE) all && \
 	echo "$(COLOR_GREEN)✅ Despliegue completado. Mostrando logs...$(COLOR_RESET)" ; \
 	docker logs mariadb ; \
 	docker logs wordpress ; \
