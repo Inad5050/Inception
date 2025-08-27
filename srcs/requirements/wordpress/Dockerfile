@@ -10,7 +10,23 @@
 # EXPOSE Expone el puerto 9000 para la comunicación con Nginx (PHP-FPM).
 #	Solo indica que puerto quiere usar el contenedor, los puertos se abren en el docker-compose.yml
 
+# FROM debian:bullseye
+# RUN apt-get update && apt-get upgrade -y && \
+#     apt-get install -y \
+#     curl \
+#     php7.4-fpm \
+#     php7.4-mysql \
+#     php7.4-curl \
+#     mariadb-client
+# COPY ./tools/entrypoint.sh /usr/local/bin/entrypoint.sh
+# RUN chmod +x /usr/local/bin/entrypoint.sh
+# RUN mkdir -p /var/www/html /run/php
+# EXPOSE 9000
+# ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
+#CMD ["/usr/sbin/php-fpm7.4", "-F"]
+
 FROM debian:bullseye
+
 RUN apt-get update && apt-get upgrade -y && \
     apt-get install -y \
     curl \
@@ -18,12 +34,15 @@ RUN apt-get update && apt-get upgrade -y && \
     php7.4-mysql \
     php7.4-curl \
     mariadb-client
-COPY ./tools/entrypoint.sh /usr/local/bin/entrypoint.sh
-RUN chmod +x /usr/local/bin/entrypoint.sh
+
+COPY tools/wp-entrypoint.sh /usr/local/bin/wp-entrypoint.sh
+RUN chmod +x /usr/local/bin/wp-entrypoint.sh
+
 RUN mkdir -p /var/www/html /run/php
+
 EXPOSE 9000
-ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
-#CMD ["/usr/sbin/php-fpm7.4", "-F"]
+
+ENTRYPOINT ["wp-entrypoint.sh"]
 
 # ENTRYPOINT Punto de entrada para la configuración inicial. Ejecuta un script de shell.
 # CMD Comando por defecto para iniciar PHP-FPM en primer plano.
