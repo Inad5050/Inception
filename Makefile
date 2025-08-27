@@ -62,11 +62,6 @@
 
 # .PHONY: all clean fclean re volumes secrets env
 
-push:
-	git add .
-	git commit -m "generic_push"
-	git push
-
 COMPOSE_FILE=srcs/docker-compose.yml
 
 all: up
@@ -92,3 +87,8 @@ clean: down
 	@rm -rf /home/dangonz3/data
 
 re: clean up
+
+push:
+	git add .
+	git commit -m "generic_push"
+	git push
