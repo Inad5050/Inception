@@ -50,7 +50,7 @@ fclean:
 	@docker system prune --all --volumes --force
 	@sudo rm -rf $(VOLUME_DIR)
 	@sudo rm -rf ${SECRETS_DIR}
-	@sudo rm $(ENV_FILE)
+	@sudo rm -rf $(ENV_FILE)
 	@echo "$(COLOR_GREEN)------------ Limpieza completa finalizada ------------$(COLOR_RESET)"
 
 re: fclean all
