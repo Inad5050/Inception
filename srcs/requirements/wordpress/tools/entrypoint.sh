@@ -1,8 +1,9 @@
 #!/bin/bash
 
+echo \n\n\n"WordPress script"\n\n\n
+
 MYSQL_PASSWORD = $(cat "${MYSQL_PASSWORD_FILE}")
 
-echo "Starting WordPress setup..."
 echo "Database: $MYSQL_DATABASE"
 echo "User: $MYSQL_USER" 
 echo "Domain: $DOMAIN_NAME"

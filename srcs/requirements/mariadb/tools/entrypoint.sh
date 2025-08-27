@@ -1,5 +1,7 @@
 #!/bin/bash
 
+echo \n\n\n"MariaDB script"\n\n\n
+
 MYSQL_PASSWORD=$(cat "${MYSQL_PASSWORD_FILE}")
 
 service mariadb start
