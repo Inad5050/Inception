@@ -204,6 +204,11 @@ services:
 #   wp_user_password:
 #     file: ../secrets/wp_user_password.txt
 
+networks:
+  my-network:
+    name: dangonz3-network
+    driver: bridge
+
 volumes:
   mariadb:
     driver_opts:
@@ -216,8 +221,3 @@ volumes:
       o: bind
       type: none
       device: /home/dangonz3/data/wordpress
-
-networks:
-  my-network:
-    name: dangonz3-network
-    driver: bridge
