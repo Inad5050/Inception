@@ -39,7 +39,7 @@ env:
 	WP_USERNAME=dangonz3\n\
 	WP_USER_EMAIL=dangonz3@student.42urduliz.com\n\
 	WP_USER_PASSWORD=hola123\n\
-	WP_USER_ROLE=administrator"
+	WP_USER_ROLE=administrator"\
 	> $(ENV_FILE)
 
 clean:

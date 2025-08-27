@@ -1,9 +1,9 @@
 #!/bin/bash
 
-MYSQL_PASSWORD=$(cat "${MYSQL_PASSWORD_FILE}")
+SQL_PASSWORD=$(cat "${SQL_PASSWORD_FILE}")
 
-echo "Database: $MYSQL_DATABASE"
-echo "User: $MYSQL_USER" 
+echo "Database: $SQL_DATABASE"
+echo "User: $SQL_USER" 
 echo "Domain: $DOMAIN_NAME"
 
 # Descarga la herramienta de línea de comandos de WordPress, WP-CLI. Para facilitar la instalación de WP.
@@ -28,7 +28,7 @@ chmod -R 755 /var/www/html
 # SELECT 1: Ejecuta una consulta SQL muy simple.
 # &>/dev/null: redirige las salidas estandrd y de error a dev/null para mantener la consola vacía.
 echo "Waiting for database..."
-while ! mariadb -h mariadb -u"$MYSQL_USER" -p"$MYSQL_PASSWORD" "$MYSQL_DATABASE" -e "SELECT 1;" &>/dev/null; do
+while ! mariadb -h mariadb -u"$SQL_USER" -p"$SQL_PASSWORD" "$SQL_DATABASE" -e "SELECT 1;" &>/dev/null; do
     echo "Database not ready, waiting..."
     sleep 5
 done
@@ -46,9 +46,9 @@ fi
 if [ ! -f wp-config.php ]; then
     echo "Creating wp-config.php..."
     wp config create \
-        --dbname="$MYSQL_DATABASE" \
-        --dbuser="$MYSQL_USER" \
-        --dbpass="$MYSQL_PASSWORD" \
+        --dbname="$SQL_DATABASE" \
+        --dbuser="$SQL_USER" \
+        --dbpass="$SQL_PASSWORD" \
         --dbhost=mariadb:3306 \
         --allow-root
 fi
