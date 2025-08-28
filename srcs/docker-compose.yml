@@ -1,7 +1,7 @@
 services:
 # --- Servicio MariaDB ---
-# 	Usamos un atajo para especificar el contexto de construcción de la imagen y
 # build: Construye la imagen a partir del Dockerfile ubicado en la ruta especificada.
+#   Usamos un atajo para especificar el contexto de construcción de la imagen y
 # 	la úbicación del Dockerfile (en el root del directorio especificado) a la vez.
 # 	La forma explicita seria:
 # 		context: ./ruta_al_directorio
@@ -9,14 +9,10 @@ services:
 # container_name: Asigna un nombre fijo al contenedor.
 # image: cuando está presente junto a build pasa a simplemente nombrar la imagen de docker, si no se usa un nombre por defecto.
 # volumes: Monta un directorio del host en el contenedor para que los datos de la base de datos persistan.
-#	montar: la acción lógica de hacer que un sistema de archivos o un almacenamiento de datos sea accesible en un punto específico,
+#	  montar: la acción lógica de hacer que un sistema de archivos o un almacenamiento de datos sea accesible en un punto específico,
 #		establecer un enlace directo entre el directorio del host (/home/dangonz3/data/db_data) y el directorio del contenedor (/var/lib/mysql).
-# networks: Conecta el servicio a la red personalizada 'inception_network'.
+# networks: Conecta el servicio a la red personalizada 'my-network'.
 # restart: el contenedor se reiniciará si falla, pero no si ha sido detenido manualmente por un usuario.
-# secrets: Otorga al contenedor acceso a los secretos de Docker definidos en el nivel raíz de docker-compose.
-#	Cuando declaramos secrets: docker coge el contenido del archivo local y crea un nuevo archivo en el contenedor,
-#		en la ruta /run/secrets.
-#	run es una ubicación estándar en los sistemas operativos Linux modernos para almacenar datos de tiempo de ejecución.
 #	Durante la configuración inicial MariaDB necesita permisos root para: crear la base de datos para WordPress,
 #		crear el usuario para WordPress y otorgar privilegios a ese usuario.
 #		Tras la configuración inicial, WordPress ya no necesita el acceso root y utiliza el usuario con privilegios limitados que se acaba de crear.
@@ -26,48 +22,21 @@ services:
 #	MYSQL_PASSWORD_FILE: le indica al script de inicialización de MariaDB dónde encontrar la contraseña del usuario (dentro del contenedor).
 #	MYSQL_ROOT_PASSWORD_FILE: le indica dónde encontrar la contraseña del usuario root.
   mariadb:
-    image: mariadb
-    container_name: mariadb
     build: ./requirements/mariadb
+    container_name: mariadb
+    image: mariadb
     ports:
       - "3306:3306"
     volumes:
       - /home/dangonz3/data/mariadb2:/var/lib/mysql
     networks:
       - my-network
-    env_file: .env
+    restart: always
     environment:
       SQL_DATABASE: ${SQL_DATABASE}
       SQL_USER: ${SQL_USER}
       SQL_PASSWORD: ${SQL_PASSWORD}
       SQL_ROOT_PASSWORD: ${SQL_ROOT_PASSWORD}
-    restart: always
-
-# --- Servicio Nginx ---
-# container_name: Asigna un nombre fijo al contenedor.
-# image: cuando está presente junto a build pasa a simplemente nombrar la imagen de docker, si no se usa un nombre por defecto.
-# build: Construye la imagen del servidor web Nginx.
-# depends_on: Asegura que el servicio 'wordpress' esté disponible antes de iniciar Nginx.
-# ports: Mapea el puerto 443 del host al puerto 443 del contenedor.
-# volumes: Define los volúmenes para Nginx.
-#	el volumen de WordPress para servir ficheros estáticos directamente.
-# networks: Conecta el servicio a la red 'inception_network'.
-# restart: Configura el reinicio automático.
-#	always: El contenedor se reiniciará siempre que se detenga. Para garantizar que este siempre disponible.
-  nginx:
-    image: nginx
-    container_name: nginx
-    build: ./requirements/nginx
-    ports:
-      - "443:443"
-    depends_on:
-      - wordpress
-    volumes:
-      - /home/dangonz3/data/wordpress:/var/www/html
-    networks:
-      - my-network
-    env_file: .env
-    restart: always
 
 # --- Servicio WordPress ---
 # container_name: Asigna un nombre fijo al contenedor.
@@ -75,7 +44,7 @@ services:
 # build: Construye la imagen a partir del Dockerfile de WordPress.
 # depends_on: Asegura que el servicio 'mariadb' se inicie antes que este servicio.
 # volumes: Monta el directorio de datos de WordPress para que los ficheros (temas, plugins, uploads) persistan.
-# networks: Conecta el servicio a la red 'inception_network'.
+# networks: Conecta el servicio a la red 'my-network'.
 # restart: Configura el reinicio automático.
 #	unless-stopped: el contenedor se reiniciará si falla, pero no si ha sido detenido manualmente por un usuario.
 # secrets: Otorga acceso al secreto que contiene la contraseña de la base de datos.
@@ -85,16 +54,16 @@ services:
 # 	Cuando se utiliza la directiva secrets en Docker Compose, Docker toma el contenido del archivo en el host y 
 #	lo monta como un archivo dentro del contenedor en una ruta específica. Por defecto: /run/secrets/<nombre_del_secreto>.
   wordpress:
-    image: wordpress
-    container_name: wordpress
     build: ./requirements/wordpress
+    container_name: wordpress
+    image: wordpress
     depends_on:
       - mariadb
     volumes:
       - /home/dangonz3/data/wordpress:/var/www/html
     networks:
       - my-network
-    env_file: .env
+    restart: always
     environment:
       SQL_DATABASE: ${SQL_DATABASE}
       SQL_USER: ${SQL_USER}
@@ -108,6 +77,30 @@ services:
       WP_USER_EMAIL: ${WP_USER_EMAIL}
       WP_USER_PASSWORD: ${WP_USER_PASSWORD}
       WP_USER_ROLE: ${WP_USER_ROLE}
+
+# --- Servicio Nginx ---
+# container_name: Asigna un nombre fijo al contenedor.
+# image: cuando está presente junto a build pasa a simplemente nombrar la imagen de docker, si no se usa un nombre por defecto.
+# build: Construye la imagen del servidor web Nginx.
+# depends_on: Asegura que el servicio 'wordpress' esté disponible antes de iniciar Nginx.
+# ports: Mapea el puerto 443 del host al puerto 443 del contenedor.
+# volumes: Define los volúmenes para Nginx.
+#	el volumen de WordPress para servir ficheros estáticos directamente.
+# networks: Conecta el servicio a la red 'my-network'.
+# restart: Configura el reinicio automático.
+#	always: El contenedor se reiniciará siempre que se detenga. Para garantizar que este siempre disponible.
+  nginx:
+    build: ./requirements/nginx
+    container_name: nginx
+    image: nginx
+    ports:
+      - "443:443"
+    depends_on:
+      - wordpress
+    volumes:
+      - /home/dangonz3/data/wordpress:/var/www/html
+    networks:
+      - my-network
     restart: always
 
 # networks: Declara la red personalizada para permitir la comunicación entre servicios por su nombre.

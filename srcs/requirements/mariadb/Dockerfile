@@ -28,10 +28,10 @@
 
 FROM debian:bullseye
 RUN apt-get update && apt-get install -y mariadb-server
-COPY tools/entrypoint_db.sh /usr/local/bin/entrypoint_db.sh
-RUN chmod +x /usr/local/bin/entrypoint_db.sh
+COPY tools/db_entrypoint.sh /usr/local/bin/db_entrypoint.sh
+RUN chmod +x /usr/local/bin/db_entrypoint.sh
 EXPOSE 3306
-ENTRYPOINT ["/usr/local/bin/entrypoint_db.sh"]
+ENTRYPOINT ["/usr/local/bin/db_entrypoint.sh"]
 CMD ["mariadbd", "--bind-address=0.0.0.0"]
 
 # --- NOTAS ---

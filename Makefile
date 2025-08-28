@@ -9,9 +9,6 @@ all:
 clean:
 	@docker compose -f $(DOCKER_COMPOSE_FILE) down -v
 
-# Por defecto prune solo elimina recursos "colgantes".
-# --all lo altera para que elimine todos los recursos no usados: contenedores, redes e imagenes.
-# --volumes hace que tambíen elimine volumenes.
 fclean: clean
 	@docker image prune -a -f
 	@docker volume prune -f
@@ -23,8 +20,3 @@ fclean: clean
 re: fclean all
 
 .PHONY: all clean fclean re
-
-push:
-	git add .
-	git commit -m "generic_push"
-	git push
