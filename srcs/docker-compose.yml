@@ -9,7 +9,6 @@ services:
       - mariadb:/var/lib/mysql
     networks:
       - my-network
-    env_file: .env
     environment:
       SQL_DATABASE: ${SQL_DATABASE}
       SQL_USER: ${SQL_USER}
@@ -29,7 +28,6 @@ services:
       - wordpress:/var/www/html
     networks:
       - my-network
-    env_file: .env
     restart: always
 
   wordpress:
@@ -42,7 +40,6 @@ services:
       - wordpress:/var/www/html
     networks:
       - my-network
-    env_file: .env
     environment:
       SQL_DATABASE: ${SQL_DATABASE}
       SQL_USER: ${SQL_USER}
@@ -64,7 +61,6 @@ volumes:
       o: bind
       type: none
       device: /home/dangonz3/data/mariadb2
-
   wordpress:
     driver_opts:
       o: bind
