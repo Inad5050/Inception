@@ -112,10 +112,12 @@ volumes:
   mariadb:
     driver_opts:
       o: bind
+      type: none
       device: /home/dangonz3/data/mariadb2
   wordpress:
     driver_opts:
       o: bind
+      type: none
       device: /home/dangonz3/data/wordpress
 
 networks:
