@@ -31,11 +31,13 @@ services:
       - mariadb:/var/lib/mysql
     networks:
       - my-network
+    secrets:
+      - password1
     environment:
       SQL_DATABASE: ${SQL_DATABASE}
       SQL_USER: ${SQL_USER}
-      SQL_PASSWORD_FILE: password1
-      SQL_ROOT_PASSWORD_FILE: password1
+      SQL_PASSWORD_FILE: /run/secrets/password1
+      SQL_ROOT_PASSWORD_FILE: /run/secrets/password1
     restart: always
 
 # --- Servicio Nginx ---
@@ -88,18 +90,21 @@ services:
       - wordpress:/var/www/html
     networks:
       - my-network
+    secrets:
+      - password1
+      - password2
     environment:
       SQL_DATABASE: ${SQL_DATABASE}
       SQL_USER: ${SQL_USER}
-      SQL_PASSWORD_FILE: password1
+      SQL_PASSWORD_FILE: /run/secrets/password1
       DOMAIN_NAME: ${DOMAIN_NAME}
       WP_TITLE: ${WP_TITLE}
       WP_ADMIN_USER: ${WP_ADMIN_USER}
-      WP_ADMIN_PASSWORD_FILE: password1
+      WP_ADMIN_PASSWORD_FILE: /run/secrets/password2
       WP_ADMIN_EMAIL: ${WP_ADMIN_EMAIL}
       WP_USERNAME: ${WP_USERNAME}
       WP_USER_EMAIL: ${WP_USER_EMAIL}
-      WP_USER_PASSWORD_FILE: password1
+      WP_USER_PASSWORD_FILE: /run/secrets/password1
       WP_USER_ROLE: ${WP_USER_ROLE}
     restart: always
 
