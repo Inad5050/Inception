@@ -34,8 +34,8 @@ services:
     environment:
       SQL_DATABASE: ${SQL_DATABASE}
       SQL_USER: ${SQL_USER}
-      SQL_PASSWORD_FILE: run/secrets/password1.txt
-      SQL_ROOT_PASSWORD_FILE: run/secrets/password1.txt
+      SQL_PASSWORD_FILE: password1
+      SQL_ROOT_PASSWORD_FILE: password1
     restart: always
 
 # --- Servicio Nginx ---
@@ -91,15 +91,15 @@ services:
     environment:
       SQL_DATABASE: ${SQL_DATABASE}
       SQL_USER: ${SQL_USER}
-      SQL_PASSWORD_FILE: run/secrets/password1.txt
+      SQL_PASSWORD_FILE: password1
       DOMAIN_NAME: ${DOMAIN_NAME}
       WP_TITLE: ${WP_TITLE}
       WP_ADMIN_USER: ${WP_ADMIN_USER}
-      WP_ADMIN_PASSWORD_FILE: run/secrets/password1.txt
+      WP_ADMIN_PASSWORD_FILE: password1
       WP_ADMIN_EMAIL: ${WP_ADMIN_EMAIL}
       WP_USERNAME: ${WP_USERNAME}
       WP_USER_EMAIL: ${WP_USER_EMAIL}
-      WP_USER_PASSWORD_FILE: run/secrets/password1.txt
+      WP_USER_PASSWORD_FILE: password1
       WP_USER_ROLE: ${WP_USER_ROLE}
     restart: always
 
@@ -119,3 +119,9 @@ networks:
   my-network:
     name: dangonz3-network
     driver: bridge
+
+secrets:
+  password1:
+    file: ../secrets/password1.txt
+  password2:
+    file: ../secrets/password2.txt
