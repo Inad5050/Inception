@@ -1,6 +1,6 @@
 #!/bin/bash
 
-SQL_PASSWORD=$(cat "${SQL_PASSWORD_FILE}")
+# SQL_PASSWORD=$(cat "${SQL_PASSWORD_FILE}")
 
 service mariadb start
 

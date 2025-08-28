@@ -1,8 +1,8 @@
 #!/bin/bash
 
-SQL_PASSWORD=$(cat "${SQL_PASSWORD_FILE}")
-WP_ADMIN_PASSWORD=$(cat "${WP_ADMIN_PASSWORD_FILE}")
-WP_USER_PASSWORD=$(cat "${WP_USER_PASSWORD_FILE}")
+# SQL_PASSWORD=$(cat "${SQL_PASSWORD_FILE}")
+# WP_ADMIN_PASSWORD=$(cat "${WP_ADMIN_PASSWORD_FILE}")
+# WP_USER_PASSWORD=$(cat "${WP_USER_PASSWORD_FILE}")
 
 echo "Starting WordPress setup..."
 echo "Database: $SQL_DATABASE"
