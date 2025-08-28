@@ -8,4 +8,4 @@ RUN chmod +x /usr/local/bin/db.sh
 
 EXPOSE 3306
 
-ENTRYPOINT ["/usr/local/bin/db.sh" ]
+ENTRYPOINT ["/usr/local/bin/db-entrypoint.sh" ]

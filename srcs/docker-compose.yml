@@ -36,14 +36,16 @@ services:
     networks:
       - inception-network
     restart: always
-    secrets:
-      - password1
-      - password2
+    # secrets:
+    #   - password1
+    #   - password2
     environment:
       SQL_DATABASE: ${SQL_DATABASE}
       SQL_USER: ${SQL_USER}
-      SQL_PASSWORD_FILE: /run/secrets/password1
-      SQL_ROOT_PASSWORD_FILE: /run/secrets/password2
+      # SQL_PASSWORD_FILE: /run/secrets/password1
+      # SQL_ROOT_PASSWORD_FILE: /run/secrets/password2
+      SQL_PASSWORD: ${SQL_PASSWORD}
+      SQL_ROOT_PASSWORD: ${SQL_ROOT_PASSWORD}
       
       
 # --- Servicio WordPress ---
@@ -72,23 +74,26 @@ services:
     networks:
       - inception-network
     restart: always
-    secrets:
-      - password1
-      - password2
+    # secrets:
+    #   - password1
+    #   - password2
     environment:
       SQL_DATABASE: ${SQL_DATABASE}
       SQL_USER: ${SQL_USER}
-      SQL_PASSWORD_FILE: /run/secrets/password1
+      # SQL_PASSWORD_FILE: /run/secrets/password1
+      SQL_PASSWORD_FILE: ${SQL_PASSWORD_FILE}
 
       DOMAIN_NAME: ${DOMAIN_NAME}
       WP_TITLE: ${WP_TITLE}
       WP_ADMIN_USER: ${WP_ADMIN_USER}
-      WP_ADMIN_PASSWORD_FILE: /run/secrets/password2
+      # WP_ADMIN_PASSWORD_FILE: /run/secrets/password2
+      WP_ADMIN_PASSWORD_FILE: ${WP_ADMIN_PASSWORD_FILE}
 
       WP_ADMIN_EMAIL: ${WP_ADMIN_EMAIL}
       WP_USERNAME: ${WP_USERNAME}
       WP_USER_EMAIL: ${WP_USER_EMAIL}
-      WP_USER_PASSWORD_FILE: /run/secrets/password1
+      # WP_USER_PASSWORD_FILE: /run/secrets/password1
+      WP_USER_PASSWORD_FILE: ${WP_USER_PASSWORD_FILE}
 
       WP_USER_ROLE: ${WP_USER_ROLE}
 
