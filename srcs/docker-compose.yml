@@ -81,7 +81,7 @@ services:
       SQL_DATABASE: ${SQL_DATABASE}
       SQL_USER: ${SQL_USER}
       # SQL_PASSWORD_FILE: /run/secrets/password1
-      SQL_PASSWORD_FILE: ${SQL_PASSWORD_FILE}
+      # SQL_PASSWORD_FILE: ${SQL_PASSWORD_FILE}
 
       DOMAIN_NAME: ${DOMAIN_NAME}
       WP_TITLE: ${WP_TITLE}
