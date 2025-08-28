@@ -4,7 +4,7 @@ VOLUME_DIR=/home/dangonz3/data
 all:
 	@mkdir -p ${VOLUME_DIR}/wordpress
 	@mkdir -p ${VOLUME_DIR}/mariadb2
-	@docker compose -f $(DOCKER_COMPOSE_FILE) up --build
+	@docker compose -f $(DOCKER_COMPOSE_FILE) up --build -d
 
 clean:
 	@docker compose -f $(DOCKER_COMPOSE_FILE) down -v
