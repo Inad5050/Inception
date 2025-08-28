@@ -155,8 +155,8 @@ networks:
     name: dangonz3-network
     driver: bridge
 
-secrets:
-  password1:
-    file: ../secrets/password1.txt
-  password2:
-    file: ../secrets/password2.txt
+# secrets:
+#   password1:
+#     file: ../secrets/password1.txt
+#   password2:
+#     file: ../secrets/password2.txt
