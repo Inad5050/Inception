@@ -14,21 +14,6 @@
 # 	El directorio /etc/nginx/conf.d/ está diseñado para albergar archivos de configuración suplementarios,
 #	El archivo nginx.conf principal de NGINX (en la imagen base) contiene una directiva include /etc/nginx/conf.d/*.conf;.
 
-# FROM debian:11
-# RUN apt update \                 
-# && apt install -y nginx \ 
-# && apt install -y openssl \ 
-# && mkdir -p /etc/nginx/ssl
-# RUN openssl req -x509 -nodes \ 
-# -out /etc/nginx/ssl/inception.crt \ 
-# -keyout /etc/nginx/ssl/inception.key \ 
-# -subj "/C=ES/ST=E/L=BIL/O=42/OU=42/CN=dangonz3.42.com/UID=dangonz3"
-# STOPSIGNAL SIGQUIT
-# COPY ./conf/default.conf /etc/nginx/conf.d/wp-conf.conf
-# RUN chown -R www-data:www-data /var/www/html
-# EXPOSE 443
-# CMD ["nginx", "-g", "daemon off;"]
-
 FROM debian:11
 RUN apt-get update && apt-get install -y \
     nginx \
