@@ -1,0 +1,12 @@
+DOMAIN_NAME=dangonz3.42.fr
+
+SQL_DATABASE=mariadb
+SQL_USER=dangonz3
+
+WP_TITLE=Inception
+WP_ADMIN_USER=master
+WP_ADMIN_EMAIL=dangonz3@student1.42urduliz.com
+
+WP_USERNAME=dangonz3
+WP_USER_EMAIL=dangonz3@student2.42urduliz.com
+WP_USER_ROLE=administrator
